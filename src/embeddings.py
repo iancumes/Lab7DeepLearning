@@ -268,9 +268,15 @@ def train_gensim(best,meta,selection_words,device):
             cumulative=model.get_latest_training_loss()
             loss=cumulative-self.previous
             self.previous=cumulative
+            # Word2Vec limpia norms al final de train(), no entre callbacks.
+            # Recalcular evita cosenos con normas de una epoch anterior.
+            model.wv.fill_norms(force=True)
             evaluation=epoch_evaluation(model.wv,selection_words,device)
+            import psutil
             self.logs.append(dict(epoch=len(self.logs)+1,config=cfg,loss_sum=loss,
-                                 training_seconds=training_seconds,**evaluation))
+                                 training_seconds=training_seconds,gpu_peak_bytes=None,
+                                 process_rss_bytes=psutil.Process().memory_info().rss,**evaluation))
+            model.wv.save(str(CHECKPOINTS/f'gensim_e{len(self.logs)}.kv'),separately=[])
             save_json(ART/"runs"/"gensim.json",self.logs)
             print("GENSIM",len(self.logs),"rho",evaluation["wordsim"]["spearman"],flush=True)
     recorder=Recorder()

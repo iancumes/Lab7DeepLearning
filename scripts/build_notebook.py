@@ -107,6 +107,7 @@ for cfg in configuraciones:
             subs.append({'configuración':cfg['name'],'epoch':row['epoch'],'palabra':word,**stats})
 display(pd.DataFrame(subs))
 display(Image(filename=str(ART/'figures'/'sgns_curves.png')))''')
+md(r'''La pérdida SGNS depende del número de negativos: los valores absolutos de k=5 y k=10 no son directamente comparables. La selección usa WordSim y analogías, no la menor pérdida entre objetivos diferentes.''')
 code('''neighbors=[]
 for cfg in configuraciones:
     for row in load_json(ART/'runs'/f"{cfg['name']}.json"):
@@ -231,6 +232,7 @@ Los checkpoints por epoch se preservan en el respaldo de entrenamiento; los arch
 3. PyTorch 2.8, documentación de Embedding y EmbeddingBag.
 4. Gensim 4.4, documentación de Word2Vec y KeyedVectors.
 5. [WikiText-103](https://huggingface.co/datasets/Salesforce/wikitext), [AG News](https://huggingface.co/datasets/fancyzhx/ag_news).
+6. Hill, Reichart y Korhonen (2015), *SimLex-999: Evaluating Semantic Models with Similarity Estimation*, Computational Linguistics. [Recurso original](https://fh295.github.io/simlex.html).
 
 Repositorio de la entrega: https://github.com/iancumes/Lab7DeepLearning''')
 nb.cells=cells
