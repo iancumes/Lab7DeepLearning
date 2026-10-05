@@ -40,7 +40,7 @@ from src.preprocessing import tokenize, normalize, pair_batches, pair_count
 from src.embeddings import SGNS, AnalogyEngine
 from src.classification import NewsClassifier
 from src.reporting import tables, figures
-pd.set_option('display.max_rows',100)
+pd.set_option('display.max_rows',200)
 pd.set_option('display.max_columns',20)
 pd.set_option('display.max_colwidth',160)
 if REENTRENAR:

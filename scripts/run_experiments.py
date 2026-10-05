@@ -3,18 +3,44 @@ from __future__ import annotations
 import argparse
 import sys
 import time
+import shutil
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from src.common import initialize,ART,CHECKPOINTS,save_json,load_json,hardware,experiment_configs
+from src.common import ROOT,initialize,ART,CHECKPOINTS,save_json,load_json,hardware,experiment_configs
 from src.preprocessing import prepare_corpus,prepare_ids
 from src.embeddings import load_glove,train_sgns,select_best,train_gensim,final_embedding_evaluation,read_similarity
 from src.classification import prepare_news,train_classifiers,evaluate_test
 
-def main(stage="all"):
+def archive_training_results():
+    """Preserva resultados publicados antes de un entrenamiento nuevo."""
+    archive=ROOT/'tmp'/f'resultados_previos_{time.time_ns()}'
+    archive.mkdir(parents=True)
+    sources=[ART/name for name in ['runs','evaluations','classifiers','classification_selection.json',
+                                  'best_sgns.json','completion.json','verification.json']]
+    sources+=list(CHECKPOINTS.glob('*.pt'))
+    sources+=[p for p in CHECKPOINTS.glob('*.kv*') if not p.name.startswith('glove')]
+    for source in sources:
+        if not source.exists(): continue
+        relative=source.relative_to(ROOT); destination=archive/relative
+        assert source.resolve().is_relative_to(ROOT.resolve()) and destination.resolve().is_relative_to(ROOT.resolve())
+        destination.parent.mkdir(parents=True,exist_ok=True)
+        shutil.move(str(source),str(destination))
+    print('RESULTADOS_ANTERIORES_PRESERVADOS',archive,flush=True)
+
+def main(stage="all",fresh=False):
     started=time.perf_counter()
+    configs=experiment_configs()
+    inherited=False
+    if stage!='prepare':
+        for cfg in configs:
+            path=ART/'runs'/f"{cfg['name']}.json"
+            if not path.exists(): continue
+            rows=load_json(path)
+            if rows and (rows[-1]['config']!=cfg or not (CHECKPOINTS/f"{cfg['name']}_e{rows[-1]['epoch']}.pt").exists()):
+                inherited=True
+    if fresh or inherited: archive_training_results()
     device=initialize()
     save_json(ART/"hardware.json",hardware())
-    configs=experiment_configs()
     save_json(ART/"configurations.json",configs)
     corpus=prepare_corpus()
     metas={cfg["name"]:prepare_ids(cfg,corpus) for cfg in configs}
@@ -58,4 +84,6 @@ def main(stage="all"):
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("--stage",choices=["all","prepare","embeddings"],default="all")
-    main(parser.parse_args().stage)
+    parser.add_argument('--fresh',action='store_true',help='Preservar resultados anteriores y entrenar desde cero.')
+    args=parser.parse_args()
+    main(args.stage,args.fresh)
