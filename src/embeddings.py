@@ -177,6 +177,7 @@ def train_sgns(config, meta, selection_words, device):
         checkpoint=torch.load(CHECKPOINTS/f'{config["name"]}_e{last}.pt',map_location=device,weights_only=False)
         model.load_state_dict(checkpoint["model"])
         optimizer.load_state_dict(checkpoint["optimizer"])
+        del checkpoint
     started=time.perf_counter()
     for epoch in range(len(logs)+1,config["epochs"]+1):
         epoch_started=time.perf_counter()
