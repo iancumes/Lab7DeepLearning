@@ -18,6 +18,7 @@ def main(stage="all"):
     save_json(ART/"configurations.json",configs)
     corpus=prepare_corpus()
     metas={cfg["name"]:prepare_ids(cfg,corpus) for cfg in configs}
+    save_json(ART/"corpus_configurations.json",list(metas.values()))
     if stage=="prepare":
         return
     glove=load_glove()
@@ -43,6 +44,9 @@ def main(stage="all"):
     news=prepare_news(models)
     selection=train_classifiers(news,models,device)
     test=evaluate_test(news,selection,device)
+    from src.reporting import tables,figures,tsne
+    tsne(models)
+    figures(tables())
     import importlib.metadata as metadata
     versions={d.metadata["Name"]:d.version for d in metadata.distributions()}
     save_json(ART/"environment.json",versions)

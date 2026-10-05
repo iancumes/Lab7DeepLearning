@@ -1,0 +1,158 @@
+"""Tablas y figuras reconstruidas exclusivamente desde resultados guardados."""
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+from .common import ART,SEED,load_json,save_json
+from .embeddings import read_analogies
+
+COLORS={'tfidf':'#222222','random':'#B58B24','sgns':'#28629C','gensim':'#A64B20','glove':'#61752F'}
+plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,
+                     'axes.spines.right':False,'axes.grid':True,'grid.alpha':.18,
+                     'figure.dpi':150,'savefig.bbox':'tight'})
+
+def save_figure(fig,name):
+    fig.tight_layout()
+    fig.savefig(ART/'figures'/f'{name}.png')
+    fig.savefig(ART/'figures'/f'{name}.pdf')
+    plt.close(fig)
+
+def tables():
+    rows=[]
+    for cfg in load_json(ART/'configurations.json'):
+        for row in load_json(ART/'runs'/f"{cfg['name']}.json"):
+            rows.append(dict(configuration=cfg['name'],epoch=row['epoch'],dimension=cfg['dim'],
+              window=cfg['window'],negatives=cfg['negatives'],fraction=cfg['fraction'],tokens=row['corpus_tokens'],
+              vocabulary=row['vocabulary_size'],loss=row['loss'],pairs=row['pairs'],
+              retained_tokens=row['retained_tokens'],seconds=row['training_seconds'],gpu_bytes=row['gpu_peak_bytes'],
+              wordsim=row['wordsim']['spearman'],
+              semantic=row['analogies']['semantic']['accuracy'],syntactic=row['analogies']['syntactic']['accuracy'],
+              accuracy=row['analogies']['total']['accuracy'],coverage=row['analogies']['total']['coverage']))
+    epochs=pd.DataFrame(rows)
+    intrinsic=load_json(ART/'evaluations'/'intrinsic.json')
+    test=load_json(ART/'evaluations'/'classification_test.json')
+    selection=load_json(ART/'classification_selection.json')
+    selected={r['key']:r for r in selection['selected']}
+    cls=pd.DataFrame([dict(model=r['initialization'],variant=r['name'],fraction=r['fraction'],
+       train_examples=selected[r['key']]['train_examples'],val_f1=selected[r['key']]['validation']['f1_macro'],
+       best_epoch=selected[r['key']]['best_epoch'],seconds=selected[r['key']]['training_seconds'],
+       parameters=selected[r['key']]['total_parameters'],trainable_parameters=selected[r['key']]['trainable_parameters'],
+       **r['metrics']) for r in test])
+    comparison=[]
+    categories=[]
+    for model,r in intrinsic.items():
+        final=cls[(cls.model==model)&(cls.fraction==1)].iloc[0]
+        comparison.append(dict(model=model,dimension=r['dimension'],vocabulary=r['vocabulary_size'],
+           semantic=r['three_cos_add']['semantic']['accuracy'],syntactic=r['three_cos_add']['syntactic']['accuracy'],
+           analogy_add=r['three_cos_add']['total']['accuracy'],analogy_mul=r['three_cos_mul']['total']['accuracy'],
+           analogy_coverage=r['three_cos_add']['total']['coverage'],wordsim=r['wordsim']['spearman'],
+           wordsim_coverage=r['wordsim']['coverage'],simlex=r['simlex']['spearman'],
+           simlex_coverage=r['simlex']['coverage'],test_f1=final.f1_macro,test_variant=final.variant))
+        for method in ['three_cos_add','three_cos_mul']:
+            categories.extend(dict(model=model,method=method,**cat) for cat in r[method]['categories'])
+    output=dict(epochs=epochs,classifiers=cls,comparison=pd.DataFrame(comparison),categories=pd.DataFrame(categories))
+    for name,frame in output.items():
+        frame.to_csv(ART/f'{name}.csv',index=False)
+    return output
+
+def figures(output=None):
+    output=output or tables()
+    epochs,cls=output['epochs'],output['classifiers']
+    counts=np.array(sorted(load_json(ART/'frequencies_full_train.json').values(),reverse=True))
+    fig,ax=plt.subplots(figsize=(7,3.5))
+    ax.loglog(np.arange(1,len(counts)+1),counts,color=COLORS['sgns'])
+    ax.set(xlabel='Rango de frecuencia (log)',ylabel='Frecuencia (log)',title='Ley de Zipf en WikiText 103 normalizado')
+    save_figure(fig,'zipf')
+    fig,axes=plt.subplots(1,2,figsize=(11,4))
+    for name,group in epochs.groupby('configuration',sort=False):
+        axes[0].plot(group.epoch,group.loss,marker='o',label=name)
+        axes[1].plot(group.epoch,group.wordsim,marker='o',label=name)
+    axes[0].set(xlabel='Epoch',ylabel='Pérdida media SGNS por par',xticks=[1,2,3])
+    axes[1].set(xlabel='Epoch',ylabel='WordSim 353 Spearman',xticks=[1,2,3])
+    axes[1].legend(fontsize=8,ncol=2)
+    save_figure(fig,'sgns_curves')
+    group=epochs[epochs.configuration.isin(['corpus25','corpus50','base100'])].sort_values('tokens')
+    best=group.sort_values(['wordsim','accuracy'],ascending=False).groupby('configuration',sort=False).head(1).sort_values('tokens')
+    glove=load_json(ART/'evaluations'/'intrinsic.json')['glove']['three_cos_add']['total']['accuracy']
+    fig,ax=plt.subplots(figsize=(7,3.5))
+    ax.plot(best.tokens/1e6,best.accuracy*100,'o-',color=COLORS['sgns'],label='SGNS checkpoint por WordSim')
+    ax.axhline(glove*100,color=COLORS['glove'],linestyle='--',label='GloVe 100d (6 mil millones de tokens)')
+    ax.set(xlabel='Millones de tokens normalizados del corpus',ylabel='Accuracy de analogías (%)')
+    ax.legend(fontsize=8)
+    save_figure(fig,'analogy_vs_tokens')
+    fig,ax=plt.subplots(figsize=(7,3.7))
+    for name,group in cls.groupby('model',sort=False):
+        group=group.sort_values('fraction')
+        ax.plot(group.fraction*100,group.f1_macro*100,marker='o',color=COLORS[name],label=name)
+    ax.set(xlabel='Entrenamiento AG News disponible (%)',ylabel='F1 macro en test (%)',xticks=[1,10,50,100])
+    ax.legend(ncol=3,fontsize=8)
+    save_figure(fig,'classification_vs_data')
+    chosen=load_json(ART/'classification_selection.json')['all_results']
+    fig,axes=plt.subplots(1,2,figsize=(11,4))
+    for row in chosen:
+        if row['fraction']!=1: continue
+        history=pd.DataFrame(row['history'])
+        axes[0].plot(history.epoch,history.train_loss,label=row['name'])
+        axes[1].plot(history.epoch,history.f1_macro*100,label=row['name'])
+    axes[0].set(xlabel='Epoch',ylabel='Pérdida de entrenamiento')
+    axes[1].set(xlabel='Epoch',ylabel='F1 macro de validación (%)')
+    axes[1].legend(fontsize=7,ncol=2)
+    save_figure(fig,'classification_curves')
+    tests=[r for r in load_json(ART/'evaluations'/'classification_test.json') if r['fraction']==1]
+    fig,axes=plt.subplots(1,5,figsize=(16,3.5))
+    for ax,row in zip(axes,tests):
+        matrix=np.array(row['confusion_matrix'])
+        ax.imshow(matrix,cmap='Blues',vmin=0,vmax=max(np.max(np.array(r['confusion_matrix'])) for r in tests))
+        for y in range(4):
+            for x in range(4): ax.text(x,y,str(matrix[y,x]),ha='center',va='center',fontsize=8,color='white' if matrix[y,x]>1000 else 'black')
+        ax.set(title=row['name'],xticks=range(4),yticks=range(4),xticklabels=['W','S','B','T'],yticklabels=['W','S','B','T'],xlabel='Predicción')
+        ax.grid(False)
+    axes[0].set_ylabel('Etiqueta real')
+    save_figure(fig,'confusion_matrices')
+
+def tsne(models):
+    shared=set(load_json(ART/'shared_vocabulary.json'))
+    groups={k:set() for k in ['Lugares','Familia','Adjetivos','Verbos','Sustantivos']}
+    for q in read_analogies():
+        category=q['category']; words=q['words']
+        if category=='family': group='Familia'
+        elif not category.startswith('gram'): group='Lugares'
+        elif category.startswith(('gram1','gram3','gram4')): group='Adjetivos'
+        elif category.startswith(('gram2','gram5','gram7')): group='Verbos'
+        elif category.startswith(('gram8','gram9')): group='Sustantivos'
+        else: continue
+        groups[group].update(w for w in words if w in shared)
+    chosen={}; used=set()
+    # Muestreo equilibrado por rondas; las etiquetas proceden de la relación,
+    # no de la posición t-SNE observada. Evita inferir grupos después del gráfico.
+    order={g:iter(np.random.default_rng(SEED).permutation(sorted(words)).tolist()) for g,words in groups.items()}
+    while len(chosen)<500:
+        advanced=False
+        for group,iterator in order.items():
+            for word in iterator:
+                if word not in used:
+                    chosen[word]=group; used.add(word); advanced=True; break
+            if len(chosen)==500: break
+        if not advanced: break
+    assert len(chosen)>=450,len(chosen)
+    words=list(chosen)
+    rows=[]
+    fig,axes=plt.subplots(1,3,figsize=(15,4.5))
+    palette=dict(zip(groups,['#28629C','#A64B20','#B58B24','#61752F','#9A5278']))
+    markers=dict(zip(groups,['o','s','^','D','v']))
+    for ax,(model,kv) in zip(axes,models.items()):
+        matrix=np.array([kv.get_vector(w,norm=True) for w in words])
+        coordinates=TSNE(n_components=2,perplexity=30,init='pca',metric='cosine',max_iter=1500,random_state=SEED,n_jobs=2).fit_transform(matrix)
+        for group in groups:
+            mask=np.array([chosen[w]==group for w in words])
+            ax.scatter(coordinates[mask,0],coordinates[mask,1],s=13,alpha=.7,label=group,color=palette[group],marker=markers[group])
+        for i in range(0,len(words),25): ax.annotate(words[i],coordinates[i],fontsize=6)
+        ax.set(title=f'{model} ({len(words)} palabras)',xlabel='t SNE 1',ylabel='t SNE 2')
+        rows.extend(dict(model=model,word=w,group=chosen[w],x=float(x),y=float(y)) for w,(x,y) in zip(words,coordinates))
+    axes[-1].legend(fontsize=7)
+    save_figure(fig,'tsne')
+    pd.DataFrame(rows).to_csv(ART/'tsne_coordinates.csv',index=False)
+    save_json(ART/'tsne_selection.json',dict(seed=SEED,words=chosen,perplexity=30,max_iter=1500,metric='cosine',note='Grupos léxicos definidos por categorías de analogías; ejes y distancias globales no tienen interpretación semántica directa.'))
