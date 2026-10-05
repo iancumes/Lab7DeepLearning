@@ -14,6 +14,7 @@ from .common import ART, DATA, SEED, save_json, load_json, sha256
 WORD = re.compile(r"[^\W\d_]+(?:'[^\W\d_]+)*|\d+(?:[.,]\d+)*|[^\w\s]", re.UNICODE)
 ARTICLE = re.compile(r"^\s*=\s+([^=]+?)\s+=\s*$")
 SPECIAL = re.compile(r"<unk>|<pad>", re.IGNORECASE)
+WIKI_REVISION = "b08601e04326c79dfdd32d625aee71d232d685c3"
 
 def normalize(text):
     """Minúsculas, comillas ASCII y reparación de marcadores de WikiText.
@@ -64,7 +65,7 @@ def prepare_corpus(target=20_000_000):
     if meta.exists() and (DATA/"selected.txt").exists():
         return load_json(meta)
     started = time.perf_counter()
-    wiki = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", cache_dir=str(DATA/"hf"))
+    wiki = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", revision=WIKI_REVISION,cache_dir=str(DATA/"hf"))
     # Primero se cuentan todos los splits. Tokens normalizados y tokens por
     # espacios se reportan por separado, sin copiar cifras bibliográficas.
     counters, articles, split_stats = collections.Counter(), [], {}
@@ -110,7 +111,7 @@ def prepare_corpus(target=20_000_000):
             boundaries.append(dict(tokens=tokens_so_far, sentences=lines_so_far,
                                    article_id=item["article_id"]))
     assert tokens_so_far == total
-    manifest = dict(seed=SEED, target_tokens=target, selected_tokens=total,
+    manifest = dict(dataset="Salesforce/wikitext",dataset_revision=WIKI_REVISION,seed=SEED, target_tokens=target, selected_tokens=total,
                     selected_articles=len(selected), selected_sentences=lines_so_far,
                     articles=selected, article_boundaries=boundaries,
                     splits=split_stats, selected_sha256=sha256(DATA/"selected.txt"),

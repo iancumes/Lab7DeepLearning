@@ -19,6 +19,7 @@ from .preprocessing import tokenize
 
 LABELS=["World","Sports","Business","Sci/Tech"]
 FRACTIONS=[0.01,0.1,0.5,1.0]
+NEWS_REVISION="eb185aade064a813bc0b7f42de02595523103ca4"
 
 def metrics(y,prediction):
     p,r,f,_=precision_recall_fscore_support(y,prediction,average="macro",zero_division=0)
@@ -26,7 +27,7 @@ def metrics(y,prediction):
                 recall_macro=float(r),f1_macro=float(f))
 
 def prepare_news(models):
-    news=load_dataset("fancyzhx/ag_news",cache_dir=str(DATA/"hf"))
+    news=load_dataset("fancyzhx/ag_news",revision=NEWS_REVISION,cache_dir=str(DATA/"hf"))
     texts=news["train"]["text"]
     labels=np.array(news["train"]["label"],dtype=np.int64)
     train,validation=train_test_split(np.arange(len(texts)),test_size=0.1,stratify=labels,random_state=SEED)
