@@ -7,7 +7,7 @@ nb=nbf.v4.new_notebook()
 cells=[]
 def md(text): cells.append(nbf.v4.new_markdown_cell(text.strip()))
 def code(text): cells.append(nbf.v4.new_code_cell(text.strip()))
-md('''# Laboratorio 7 — NLP y embeddings
+md(r'''# Laboratorio 7 — NLP y embeddings
 **Ian Cumes · carné 23236 · entrega individual**
 
 Este notebook reúne investigación, implementación SGNS propia, evaluación vectorial y clasificación AG News. Los resultados se leen de registros reales del entrenamiento. El código completo está en `src/`, los manifiestos y métricas en `artifacts/`; los vectores grandes se distribuyen en una release.
@@ -48,7 +48,7 @@ if REENTRENAR:
 assert (ART/'completion.json').exists(), 'Ejecutar primero los experimentos completos.'
 print('Evidencia de ejecución:',load_json(ART/'completion.json'))
 subprocess.run([sys.executable,'-m','pytest','-q'],check=True)''')
-md('''## 1 Investigación y preprocesamiento
+md(r'''## 1 Investigación y preprocesamiento
 
 ### Word2Vec y GloVe
 CBOW predice la palabra central a partir de su contexto; Skip-Gram predice palabras del contexto desde el centro. SGNS reemplaza el softmax de todo el vocabulario por discriminación binaria entre pares observados y negativos. Las dos tablas cumplen papeles distintos: vectores de entrada del centro y vectores de salida del contexto. Se conserva la tabla de entrada para evaluación y clasificación.
@@ -69,7 +69,7 @@ print(inspect.getsource(tokenize))
 ejemplos=pd.DataFrame(load_json(ART/'tokenizer_examples.json'))
 ejemplos['iguales']=ejemplos.custom.map(tuple)==ejemplos.nltk.map(tuple)
 display(ejemplos)''')
-md('''La comparación usa `TreebankWordTokenizer` sobre la misma normalización para aislar diferencias de tokenización. NLTK separa contracciones como `can't` y `John's`; el tokenizador propio conserva apóstrofos internos. Ambos pueden fragmentar abreviaturas, URL y correos. No se fuerza igualdad: esas diferencias explican parte del OOV respecto de GloVe.''')
+md(r'''La comparación usa `TreebankWordTokenizer` sobre la misma normalización para aislar diferencias de tokenización. NLTK separa contracciones como `can't` y `John's`; el tokenizador propio conserva apóstrofos internos. Ambos pueden fragmentar abreviaturas, URL y correos. No se fuerza igualdad: esas diferencias explican parte del OOV respecto de GloVe.''')
 code('''corpus=load_json(ART/'corpus.json')
 display(pd.DataFrame(corpus['splits']).T)
 display(pd.DataFrame(corpus['thresholds']))
@@ -83,14 +83,14 @@ code('''from src.reporting import tables as construir_tablas
 tablas=construir_tablas()
 figures(tablas)
 display(Image(filename=str(ART/'figures'/'zipf.png')))''')
-md('''Zipf relaciona rango y frecuencia aproximadamente por una potencia inversa; la gráfica usa ejes logarítmicos. La concentración del corpus justifica subsampling: stopwords aportan muchos pares redundantes. `min_count` controla rareza, memoria y OOV; `min_count=1` conserva todos los tipos y 5/10 eliminan los menos observados. Los tokens excluidos por min_count no se entrenan como una palabra artificial `<unk>`.
+md(r'''Zipf relaciona rango y frecuencia aproximadamente por una potencia inversa; la gráfica usa ejes logarítmicos. La concentración del corpus justifica subsampling: stopwords aportan muchos pares redundantes. `min_count` controla rareza, memoria y OOV; `min_count=1` conserva todos los tipos y 5/10 eliminan los menos observados. Los tokens excluidos por min_count no se entrenan como una palabra artificial `<unk>`.
 
 Se permutan artículos completos con semilla 23236 hasta superar 20 millones de tokens normalizados. Los subconjuntos del 25 %, 50 % y 100 % son prefijos anidados de esa selección y cierran en límites de artículos. Por eso pueden exceder ligeramente su porcentaje nominal. Las líneas normalizadas se dividen en bloques de máximo 1000 tokens para evitar truncamiento de gensim; ambos entrenamientos usan exactamente el mismo archivo y límites de contexto.''')
 code('''configuraciones=load_json(ART/'configurations.json')
 display(pd.DataFrame(configuraciones))
 metadata=[load_json(ART/'ids'/c['name']/'meta.json') for c in configuraciones] if (ART/'ids'/'base100'/'meta.json').exists() else load_json(ART/'corpus_configurations.json')
 display(pd.DataFrame([{'configuración':c['name'],'tokens':m['corpus_tokens'],'tokens_elegibles':m['eligible_tokens'],'vocabulario':len(m['vocabulary']),'pares_antes':m['pairs_before_subsampling'],'sha256':m['corpus_sha256']} for c,m in zip(configuraciones,metadata)]))''')
-md('''## 2 Entrenamiento SGNS propio y referencias
+md(r'''## 2 Entrenamiento SGNS propio y referencias
 
 Para centro $w$ y contexto positivo $c$, se minimiza $-\log\sigma(v_w^Tu_c)-\sum_{j=1}^k\log\sigma(-v_w^Tu_{n_j})$. Los negativos se extraen de $P(n)\propto count(n)^{0.75}$ y se redibujan si coinciden con el contexto positivo. La probabilidad de conservar una palabra de frecuencia relativa $f$ es $\min(1,(\sqrt{f/t}+1)t/f)$ con $t=10^{-4}$.
 
@@ -116,7 +116,7 @@ display(pd.DataFrame(neighbors))
 mejor=load_json(ART/'best_sgns.json')
 print('Checkpoint elegido:',mejor['config']['name'],'epoch',mejor['epoch'],'WordSim',mejor['wordsim'])
 display(pd.DataFrame([load_json(ART/'hardware.json')]))''')
-md('''### Referencia gensim y GloVe
+md(r'''### Referencia gensim y GloVe
 Gensim usa `sg=1`, `hs=0`, la misma dimensión, ventana fija (`shrink_windows=False`), min_count, subsampling, negativos y distribución 0.75; tiene tres epochs y las mismas tasas inicial/final. Se verifica igualdad del vocabulario y del archivo de corpus por SHA256. Su entrenamiento usa Cython y cuatro workers; las actualizaciones asíncronas, orden, implementación del muestreo y aprendizaje secuencial producen diferencias incluso con una semilla igual. Gensim descarta un negativo que coincide con el positivo, mientras esta implementación lo redibuja. Su pérdida acumulada se diferencia por epoch, pero no es directamente comparable con la media SGNS por par.
 
 Se carga **exactamente `glove-wiki-gigaword-100`**, con 400,000 palabras, 100 dimensiones y entrenamiento publicado sobre 6 mil millones de tokens. No se reentrena GloVe en este laboratorio. El artículo original describe dos Intel Xeon E5-2658 de 2.1 GHz: 85 minutos para coocurrencias en un hilo y 14 minutos por iteración para vectores de **300 dimensiones** con 32 cores. Esos tiempos no son mediciones de `glove.6B.100d`, ni deben compararse como si fueran del mismo hardware/corpus/dimensión.
@@ -126,7 +126,7 @@ code('''gensim_log=load_json(ART/'runs'/'gensim.json')
 display(pd.DataFrame([{k:v for k,v in r.items() if k not in ['neighbors','analogies','wordsim']} | {'wordsim':r['wordsim']['spearman'],'accuracy':r['analogies']['total']['accuracy']} for r in gensim_log]))
 display(pd.DataFrame([load_json(ART/'glove_source.json')]))
 display(Image(filename=str(ART/'figures'/'analogy_vs_tokens.png')))''')
-md('''## 3 Aritmética vectorial y evaluación intrínseca
+md(r'''## 3 Aritmética vectorial y evaluación intrínseca
 
 `analogia(a,b,c,k)` implementa **3CosAdd**: normaliza cada palabra y busca vecinos por coseno de $\hat b-\hat a+\hat c$. Se excluyen a, b y c, como `gensim.most_similar`; se verifica igualdad del top-5 y similitudes con tolerancia numérica. **3CosMul** desplaza cosenos a [0,1] y maximiza $(1+cos(x,b))(1+cos(x,c))/(2(1+cos(x,a))+\epsilon)$; la implementación equivalente usa productos de cosenos desplazados y epsilon 1e-6.
 
@@ -144,7 +144,7 @@ for model,rows in personal.items():
     for r in rows:
         analogias.append({'modelo':model,'tipo':r['category'],'consulta':f"{r['a']} : {r['b']} :: {r['c']} : ?",'esperado':r['expected'],'rango':r['rank'],'coseno_correcto':r['cosine'],'top5':', '.join(f'{w} ({s:.3f})' for w,s in r['top5']),'sin_exclusión':', '.join(f'{w} ({s:.3f})' for w,s in r['without_exclusion']),'oov':r['oov']})
 display(pd.DataFrame(analogias))''')
-md('''Se evalúan 18 analogías en seis tipos: género, capitales, nacionalidades, comparativos, pasado y plurales. El rango correcto se calcula entre todos los candidatos del modelo, excluyendo las consultas. El top-5 sin exclusión muestra por qué una entrada como `king` puede dominar la búsqueda. La similitud con la respuesta esperada y su rango permiten distinguir una aproximación semántica de un acierto exacto.
+md(r'''Se evalúan 18 analogías en seis tipos: género, capitales, nacionalidades, comparativos, pasado y plurales. El rango correcto se calcula entre todos los candidatos del modelo, excluyendo las consultas. El top-5 sin exclusión muestra por qué una entrada como `king` puede dominar la búsqueda. La similitud con la respuesta esperada y su rango permiten distinguir una aproximación semántica de un acierto exacto.
 
 El paralelismo se mide mediante $cos(b-a,d-c)$ para relaciones equivalentes. Usa diferencias de vectores originales y no implica necesariamente una analogía correcta: el ruido, la norma y competidores léxicos también influyen. La proyección t-SNE permite explorar vecindades, pero sus ejes, distancias globales y tamaños de grupos no tienen interpretación semántica directa.''')
 code('''display(pd.DataFrame(load_json(ART/'evaluations'/'parallelism.json')).T)
@@ -157,7 +157,7 @@ for model,rows in personal.items():
     if fallos: print('Ejemplo de fallo:',fallos[0]['a'],fallos[0]['b'],fallos[0]['c'],'esperado',fallos[0]['expected'],'top1',fallos[0]['top5'][0],'rango',fallos[0]['rank'])
 display(Image(filename=str(ART/'figures'/'tsne.png')))
 print(load_json(ART/'tsne_selection.json')['note'])''')
-md('''## 4 Clasificación AG News
+md(r'''## 4 Clasificación AG News
 
 Se separa el entrenamiento oficial estratificadamente en 108,000 ejemplos de entrenamiento y 12,000 de validación. El test oficial tiene 7,600 ejemplos. Las fracciones 1/10/50/100 % son prefijos anidados por clase del entrenamiento. Cada vocabulario y TF-IDF se construye únicamente desde su fracción; nunca desde validación/test.
 
@@ -183,7 +183,7 @@ comparacion=tablas['classifiers'].pivot(index='fraction',columns='model',values=
 display(comparacion.round(5))
 print('Ganancia GloVe sobre aleatorio por fracción:')
 display((comparacion.glove-comparacion.random).rename('Δ F1 macro'))''')
-md('''## 5 Conclusiones y límites
+md(r'''## 5 Conclusiones y límites
 
 Las conclusiones siguientes se calculan desde las tablas guardadas. Se distingue selección por validación de evaluación final. Tres epochs y una sola semilla limitan la evidencia: no se atribuyen diferencias pequeñas a una superioridad general ni se inventan intervalos de confianza. GloVe usa un corpus mucho mayor; su ventaja puede reflejar datos, optimización y arquitectura. Los modelos Bag ignoran orden y negación; TF-IDF con bigramas recupera parte de ese orden local. Fine-tuning puede corregir dominio/OOV, pero con pocas etiquetas también puede sobreajustar.''')
 code('''comp=tablas['comparison']
@@ -197,7 +197,7 @@ for fraction in [.01,.1,.5,1.0]:
     print(f"Con {fraction*100:g}% de entrenamiento, mejor F1 test observado: {winner['variant']} = {winner.f1_macro:.4f}")
 print('Archivo de datos y decisiones:',ART/'classification_selection.json')
 print('Entorno real:',load_json(ART/'hardware.json'))''')
-md('''### Entregables y reproducción
+md(r'''### Entregables y reproducción
 
 - Código y dependencias: `src/`, `scripts/`, `requirements.txt`.
 - Registros por epoch: `artifacts/runs/`; tablas CSV, figuras y métricas JSON.

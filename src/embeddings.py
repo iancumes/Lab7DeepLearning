@@ -242,7 +242,7 @@ def select_best(configs):
     best=max(rows,key=score)
     save_json(ART/"best_sgns.json",best)
     kv=KeyedVectors.load(str(CHECKPOINTS/f'{best["config"]["name"]}_e{best["epoch"]}.kv'))
-    kv.save(str(CHECKPOINTS/"best_sgns.kv"))
+    kv.save(str(CHECKPOINTS/"best_sgns.kv"),separately=[])
     return best,kv
 
 def train_gensim(best,meta,selection_words,device):
