@@ -57,7 +57,7 @@ def hardware():
 def experiment_configs():
     base = dict(dim=100, window=5, negatives=5, fraction=1.0, min_count=5,
                 sample=1e-4, epochs=3, initial_lr=0.025, final_lr=0.0001,
-                batch_size=1024, seed=SEED, ns_exponent=0.75, dynamic_window=False)
+                batch_size=4096, seed=SEED, ns_exponent=0.75, dynamic_window=False)
     changes = [("base100", {}), ("dim50", {"dim":50}), ("dim300", {"dim":300}),
                ("corpus25", {"fraction":0.25}), ("corpus50", {"fraction":0.5}),
                ("window2", {"window":2}), ("negative10", {"negatives":10})]

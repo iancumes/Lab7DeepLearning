@@ -131,7 +131,13 @@ def prepare_ids(config, manifest):
     folder = ART/"ids"/config["name"]
     folder.mkdir(parents=True, exist_ok=True)
     if (folder/"meta.json").exists():
-        return load_json(folder/"meta.json")
+        cached=load_json(folder/"meta.json")
+        for key in ["fraction","min_count","sample","window"]:
+            assert cached["config"][key]==config[key],f"Cache incompatible: {config['name']} {key}"
+        if cached["config"]!=config:
+            cached["config"]=config
+            save_json(folder/"meta.json",cached)
+        return cached
     base = ART/"ids"/"base100"
     if config["name"]!="base100" and config["fraction"]==1.0 and (base/"meta.json").exists():
         base_meta=load_json(base/"meta.json")
