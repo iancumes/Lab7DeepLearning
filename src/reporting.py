@@ -6,8 +6,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
-from .common import ART,SEED,load_json,save_json
-from .embeddings import read_analogies
+from .common import ART,CHECKPOINTS,SEED,load_json,save_json
+from .embeddings import read_analogies,epoch_evaluation
 
 COLORS={'tfidf':'#222222','random':'#B58B24','sgns':'#28629C','gensim':'#A64B20','glove':'#61752F'}
 plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,
@@ -67,16 +67,26 @@ def figures(output=None):
     ax.set(xlabel='Rango de frecuencia (log)',ylabel='Frecuencia (log)',title='Ley de Zipf en WikiText 103 normalizado')
     save_figure(fig,'zipf')
     fig,axes=plt.subplots(1,2,figsize=(11,4))
+    styles={'base100':('#28629C','-','o'),'dim50':('#28629C','--','^'),'dim300':('#28629C',':','D'),
+            'corpus25':('#61752F','--','^'),'corpus50':('#61752F',':','D'),
+            'window2':('#A64B20','-','s'),'negative10':('#9A5278','-','v')}
     for name,group in epochs.groupby('configuration',sort=False):
-        axes[0].plot(group.epoch,group.loss,marker='o',label=name)
-        axes[1].plot(group.epoch,group.wordsim,marker='o',label=name)
+        color,style,marker=styles[name]
+        axes[0].plot(group.epoch,group.loss,marker=marker,color=color,linestyle=style,label=name)
+        axes[1].plot(group.epoch,group.wordsim,marker=marker,color=color,linestyle=style,label=name)
     axes[0].set(xlabel='Epoch',ylabel='Pérdida media SGNS por par',xticks=[1,2,3])
     axes[1].set(xlabel='Epoch',ylabel='WordSim 353 Spearman',xticks=[1,2,3])
     axes[1].legend(fontsize=8,ncol=2)
     save_figure(fig,'sgns_curves')
     group=epochs[epochs.configuration.isin(['corpus25','corpus50','base100'])].sort_values('tokens')
     best=group.sort_values(['wordsim','accuracy'],ascending=False).groupby('configuration',sort=False).head(1).sort_values('tokens')
-    glove=load_json(ART/'evaluations'/'intrinsic.json')['glove']['three_cos_add']['total']['accuracy']
+    reference=ART/'glove_selection_evaluation.json'
+    if not reference.exists():
+        from gensim.models import KeyedVectors
+        import torch
+        kv=KeyedVectors.load(str(CHECKPOINTS/'glove.kv'),mmap='r')
+        save_json(reference,epoch_evaluation(kv,load_json(ART/'selection_vocabulary.json'),torch.device('cuda' if torch.cuda.is_available() else 'cpu')))
+    glove=load_json(reference)['analogies']['total']['accuracy']
     fig,ax=plt.subplots(figsize=(7,3.5))
     ax.plot(best.tokens/1e6,best.accuracy*100,'o-',color=COLORS['sgns'],label='SGNS checkpoint por WordSim')
     ax.axhline(glove*100,color=COLORS['glove'],linestyle='--',label='GloVe 100d (6 mil millones de tokens)')
@@ -95,8 +105,10 @@ def figures(output=None):
     for row in chosen:
         if row['fraction']!=1: continue
         history=pd.DataFrame(row['history'])
-        axes[0].plot(history.epoch,history.train_loss,label=row['name'])
-        axes[1].plot(history.epoch,history.f1_macro*100,label=row['name'])
+        color=COLORS[row['initialization']]
+        style='--' if row['freeze'] else '-'
+        axes[0].plot(history.epoch,history.train_loss,label=row['name'],color=color,linestyle=style)
+        axes[1].plot(history.epoch,history.f1_macro*100,label=row['name'],color=color,linestyle=style)
     axes[0].set(xlabel='Epoch',ylabel='Pérdida de entrenamiento')
     axes[1].set(xlabel='Epoch',ylabel='F1 macro de validación (%)')
     axes[1].legend(fontsize=7,ncol=2)
@@ -115,11 +127,11 @@ def figures(output=None):
 
 def tsne(models):
     shared=set(load_json(ART/'shared_vocabulary.json'))
-    groups={k:set() for k in ['Lugares','Familia','Adjetivos','Verbos','Sustantivos']}
+    groups={k:set() for k in ['Geografía y monedas','Familia','Adjetivos','Verbos','Sustantivos']}
     for q in read_analogies():
         category=q['category']; words=q['words']
         if category=='family': group='Familia'
-        elif not category.startswith('gram'): group='Lugares'
+        elif not category.startswith('gram'): group='Geografía y monedas'
         elif category.startswith(('gram1','gram3','gram4')): group='Adjetivos'
         elif category.startswith(('gram2','gram5','gram7')): group='Verbos'
         elif category.startswith(('gram8','gram9')): group='Sustantivos'
