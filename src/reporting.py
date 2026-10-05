@@ -161,10 +161,20 @@ def tsne(models):
         for group in groups:
             mask=np.array([chosen[w]==group for w in words])
             ax.scatter(coordinates[mask,0],coordinates[mask,1],s=13,alpha=.7,label=group,color=palette[group],marker=markers[group])
-        for i in range(0,len(words),25): ax.annotate(words[i],coordinates[i],fontsize=6)
+        for i in range(0,len(words),40): ax.annotate(words[i],coordinates[i],fontsize=8)
         ax.set(title=f'{model} ({len(words)} palabras)',xlabel='t SNE 1',ylabel='t SNE 2')
         rows.extend(dict(model=model,word=w,group=chosen[w],x=float(x),y=float(y)) for w,(x,y) in zip(words,coordinates))
-    axes[-1].legend(fontsize=7)
+    axes[-1].legend(fontsize=9)
     save_figure(fig,'tsne')
     pd.DataFrame(rows).to_csv(ART/'tsne_coordinates.csv',index=False)
+    focus=pd.DataFrame([r for r in rows if r['model']=='sgns'])
+    fig,ax=plt.subplots(figsize=(7.2,2.7))
+    for group in groups:
+        part=focus[focus.group==group]
+        ax.scatter(part.x,part.y,s=10,alpha=.7,label=group,color=palette[group],marker=markers[group])
+    for i in range(0,len(focus),45):
+        r=focus.iloc[i]; ax.annotate(r.word,(r.x,r.y),fontsize=8)
+    ax.set(xlabel='t SNE 1',ylabel='t SNE 2')
+    ax.legend(fontsize=7,ncol=3,loc='upper center',bbox_to_anchor=(.5,1.35))
+    save_figure(fig,'tsne_sgns')
     save_json(ART/'tsne_selection.json',dict(seed=SEED,words=chosen,perplexity=30,max_iter=1500,metric='cosine',note='Grupos léxicos definidos por categorías de analogías; ejes y distancias globales no tienen interpretación semántica directa.'))

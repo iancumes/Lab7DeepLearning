@@ -80,8 +80,8 @@ def build_content():
       p('Se probaron 18 analogías personales de seis tipos, con top-5, similitudes, rango correcto, OOV y búsqueda con/sin exclusión. Ejemplos observados:'),
       table(['Modelo','Resultado','Consulta','Esperado','Top 1','Rango'],examples),
       p('El coseno entre b−a y d−c cuantifica el paralelismo de relaciones equivalentes. Un valor alto no garantiza que d supere a todos sus competidores. Las relaciones de capitales, género, nacionalidad y morfología muestran regularidades y errores distintos.'),
-      ('image','tsne.png',1.8),
-      p('t-SNE de aproximadamente 500 palabras compartidas, agrupadas previamente por relaciones léxicas. Semilla 23236, coseno, perplexity 30, 1500 iteraciones. Los ejes y distancias globales no se interpretan como medidas semánticas; la proyección permite explorar vecinos locales.')])
+      ('image','tsne_sgns.png',2.7),
+      p('t-SNE del SGNS seleccionado con aproximadamente 500 palabras compartidas, agrupadas previamente por relaciones léxicas. Semilla 23236, coseno, perplexity 30, 1500 iteraciones. Los ejes y distancias globales no se interpretan como medidas semánticas; el notebook muestra además gensim y GloVe.')])
     fractionrows=[]
     for f in [.01,.1,.5,1.0]:
         values={r['initialization']:r for r in test if r['fraction']==f}
@@ -148,7 +148,7 @@ def build_word(pages):
         for block in blocks:
             if block[0]=='h': doc.add_paragraph(block[1],style='Heading 1')
             elif block[0]=='p': doc.add_paragraph(block[1])
-            elif block[0]=='image': doc.add_picture(str(ART/'figures'/block[1]),height=Inches(block[2]))
+            elif block[0]=='image': doc.add_picture(str(ART/'figures'/block[1]),width=Inches(7.2))
             else:
                 _,headers,rows=block
                 t=doc.add_table(rows=1,cols=len(headers)); t.autofit=True
@@ -194,7 +194,10 @@ def build_pdf(pages):
                 text=html.escape(block[1]).replace(URL,f'<link href="{URL}">{URL}</link>')
                 story.append(Paragraph(text,style))
             elif block[0]=='image':
-                story.append(Image(str(ART/'figures'/block[1]),width=7.2*72,height=block[2]*72))
+                from reportlab.lib.utils import ImageReader
+                imagepath=str(ART/'figures'/block[1]); width,height=ImageReader(imagepath).getSize()
+                scale=min(7.2*72/width,block[2]*72/height)
+                story.append(Image(imagepath,width=width*scale,height=height*scale))
             else:
                 _,headers,rows=block
                 data=[[Paragraph(html.escape(str(x)),small) for x in row] for row in [headers]+rows]
