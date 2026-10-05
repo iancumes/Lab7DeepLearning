@@ -14,7 +14,7 @@ Este notebook reúne investigación, implementación SGNS propia, evaluación ve
 
 [Repositorio](https://github.com/iancumes/Lab7DeepLearning) · [Enunciado](https://github.com/iancumes/Lab7DeepLearning/blob/main/Laboratorio_7_NLP_Embeddings.md)
 
-**Ejecución:** todas las celdas funcionan en un kernel nuevo con dependencias instaladas. En Colab se clona el repositorio y se instalan las versiones fijadas. `REENTRENAR=True` ejecuta los experimentos completos o reanuda checkpoints presentes. La ejecución predeterminada reconstruye tablas y figuras desde las métricas publicadas, evitando repetir entrenamiento y test. Se necesitan Python 3.11/3.12 y varios GB de disco para reentrenar.''')
+**Ejecución:** todas las celdas funcionan en un kernel nuevo con dependencias instaladas. En Colab se clona el repositorio y se instalan las versiones fijadas; seleccionar el runtime 2025.10 con Python 3.12. Si Colab solicita reinicio después de instalar, reiniciar el kernel y ejecutar todas las celdas. `REENTRENAR=True` ejecuta los experimentos completos o reanuda checkpoints presentes. Si solo hay métricas publicadas y faltan checkpoints, el script preserva esos resultados en `tmp/` e inicia un entrenamiento nuevo. La ejecución predeterminada reconstruye tablas y figuras desde las métricas publicadas, evitando repetir entrenamiento y test. Se necesitan Python 3.11/3.12 y varios GB de disco para reentrenar.''')
 code('''from pathlib import Path
 import os, sys, subprocess
 EN_COLAB = 'google.colab' in sys.modules
@@ -131,6 +131,7 @@ md(r'''## 3 Aritmética vectorial y evaluación intrínseca
 `analogia(a,b,c,k)` implementa **3CosAdd**: normaliza cada palabra y busca vecinos por coseno de $\hat b-\hat a+\hat c$. Se excluyen a, b y c, como `gensim.most_similar`; se verifica igualdad del top-5 y similitudes con tolerancia numérica. **3CosMul** desplaza cosenos a [0,1] y maximiza $(1+cos(x,b))(1+cos(x,c))/(2(1+cos(x,a))+\epsilon)$; la implementación equivalente usa productos de cosenos desplazados y epsilon 1e-6.
 
 El benchmark tiene 19,544 preguntas y 14 categorías. Se exige que las cuatro palabras estén en los mismos 30,000 candidatos compartidos para todos los modelos. Accuracy se divide entre preguntas cubiertas, y cobertura entre todas las preguntas; un resultado alto con baja cobertura no significa éxito global. La columna de categorías permite distinguir relaciones semánticas y sintácticas. WordSim y SimLex finales reportan cobertura propia de cada modelo; WordSim utilizado para selección usa pares fijos.''')
+md(r'''Spearman compara rangos de cosenos y puntuaciones humanas, sin asumir una relación lineal. WordSim-353 incluye asociaciones y relaciones de significado; SimLex-999 se diseñó para medir similitud, diferenciándola de asociación. Por eso las correlaciones pueden cambiar de un benchmark a otro. [SimLex-999](https://fh295.github.io/simlex.html).''')
 code('''print(inspect.getsource(AnalogyEngine.analogia))
 display(tablas['comparison'].round(5))
 display(tablas['categories'].round(5))
@@ -138,6 +139,23 @@ intrinsic=load_json(ART/'evaluations'/'intrinsic.json')
 assert len(load_json(ART/'shared_vocabulary.json'))==30000
 assert len({r['three_cos_add']['total']['evaluated'] for r in intrinsic.values()})==1
 print('Mismas preguntas cubiertas y 30000 candidatos en los tres embeddings.')''')
+code('''from gensim.models import KeyedVectors
+from src.common import sha256
+import urllib.request
+_motor_analogia=None
+def analogia(a,b,c,k=5):
+    """3CosAdd sobre el mejor SGNS; carga los vectores solo en la primera llamada."""
+    global _motor_analogia
+    if _motor_analogia is None:
+        archivo=CHECKPOINTS/'best_sgns.kv'
+        if not archivo.exists():
+            archivo.parent.mkdir(exist_ok=True)
+            urllib.request.urlretrieve('https://github.com/iancumes/Lab7DeepLearning/releases/download/v1.0-lab7/best_sgns.kv',archivo)
+        manifiesto=ART/'vector_release.json'
+        if manifiesto.exists(): assert sha256(archivo)==load_json(manifiesto)['sha256']
+        _motor_analogia=AnalogyEngine(KeyedVectors.load(str(archivo)))
+    return _motor_analogia.analogia(a,b,c,k)
+display(pd.DataFrame(analogia('man','woman','king',5),columns=['palabra','coseno']))''')
 code('''personal=load_json(ART/'evaluations'/'personal_analogies.json')
 analogias=[]
 for model,rows in personal.items():
