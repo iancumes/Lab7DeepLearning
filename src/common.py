@@ -55,7 +55,10 @@ def sha256(path):
     return h.hexdigest()
 
 def hardware():
-    return {"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    cpu_model=platform.processor()
+    if Path('/proc/cpuinfo').exists():
+        cpu_model=next((line.split(':',1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')),cpu_model)
+    return {"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),"cpu_model":cpu_model,
             "platform": platform.platform(), "processor": platform.processor(),
             "logical_cpus": os.cpu_count(), "python": platform.python_version(),
             "torch": torch.__version__, "cuda": torch.version.cuda,

@@ -59,7 +59,7 @@ def tables():
            simlex_coverage=r['simlex']['coverage'],test_f1=final.f1_macro,test_variant=final.variant))
         comparison[-1].update(corpus_tokens=6_000_000_000 if model=='glove' else best['corpus_tokens'],
             training_seconds=None if model=='glove' else sum(e['training_seconds'] for e in (sgns_runs if model=='sgns' else gensim_runs)),
-            hardware='dual Intel Xeon E5-2658; 32 cores (artículo, 300d)' if model=='glove' else (str(hardware.get('gpu','CPU')) if model=='sgns' else str(hardware.get('cpu','CPU Colab'))),
+            hardware='dual Intel Xeon E5-2658; 32 cores (artículo, 300d)' if model=='glove' else (str(hardware.get('gpu') or hardware.get('cpu_model') or hardware.get('processor')) if model=='sgns' else str(hardware.get('cpu_model') or hardware.get('processor') or 'CPU Colab')),
             parallel_cosine=parallel[model]['mean_cosine'],ag_news_oov=news['oov'][model]['test']['unknown_fraction'],
             published_timing_note='85 min coocurrencias; 14 min/iteración para 300d, no 100d' if model=='glove' else 'medición de este experimento')
         for method in ['three_cos_add','three_cos_mul']:

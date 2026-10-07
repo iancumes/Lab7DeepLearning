@@ -4,7 +4,7 @@ No sube datos a un servicio externo: escribe ZIP en el directorio indicado.
 El usuario descarga los enlaces servidos por el proxy autenticado de Colab.
 """
 from pathlib import Path
-import argparse,json,zipfile,time,hashlib
+import argparse,json,zipfile,time,hashlib,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1]
 
 def digest(path):
@@ -36,6 +36,7 @@ def main(output):
                 if len(sources)==3:archive(destination,sources+[path])
         completion=ROOT/'artifacts/completion.json'
         if completion.exists():
+            subprocess.run([sys.executable,'scripts/verify_results.py'],cwd=ROOT,check=True)
             vector=ROOT/'checkpoints/best_sgns.kv'
             (ROOT/'artifacts/vector_release.json').write_text(json.dumps(dict(file=vector.name,bytes=vector.stat().st_size,sha256=digest(vector),release='v1.0-lab7',url='https://github.com/iancumes/Lab7DeepLearning/releases/download/v1.0-lab7/best_sgns.kv'),indent=2),encoding='utf-8')
             sources=[p for p in (ROOT/'artifacts').rglob('*') if p.is_file() and not {'ids','classifiers','normalized','remote'}&set(p.relative_to(ROOT/'artifacts').parts) and not p.name.endswith('.tmp')]
