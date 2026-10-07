@@ -36,6 +36,8 @@ def main(output):
                 if len(sources)==3:archive(destination,sources+[path])
         completion=ROOT/'artifacts/completion.json'
         if completion.exists():
+            vector=ROOT/'checkpoints/best_sgns.kv'
+            (ROOT/'artifacts/vector_release.json').write_text(json.dumps(dict(file=vector.name,bytes=vector.stat().st_size,sha256=digest(vector),release='v1.0-lab7',url='https://github.com/iancumes/Lab7DeepLearning/releases/download/v1.0-lab7/best_sgns.kv'),indent=2),encoding='utf-8')
             sources=[p for p in (ROOT/'artifacts').rglob('*') if p.is_file() and not {'ids','classifiers','normalized','remote'}&set(p.relative_to(ROOT/'artifacts').parts) and not p.name.endswith('.tmp')]
             sources+=[ROOT/'checkpoints/best_sgns.kv']
             archive(output/'lab7_resultados_finales.zip',sources)
