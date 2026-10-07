@@ -131,12 +131,12 @@ display(pd.DataFrame([{'epoch':r['epoch'],'palabra':w,'vecinos':', '.join(f'{wor
 display(Image(filename=str(ART/'figures'/'analogy_vs_tokens.png')))''')
 md(r'''## 3 Aritmética vectorial y evaluación intrínseca
 
-`analogia(a,b,c,k)` implementa **3CosAdd**: normaliza cada palabra y busca vecinos por coseno de $\hat b-\hat a+\hat c$. Se excluyen a, b y c, como `gensim.most_similar`; se verifica igualdad del top-5 y similitudes con tolerancia numérica. **3CosMul** desplaza cosenos a [0,1] y maximiza $(1+cos(x,b))(1+cos(x,c))/(2(1+cos(x,a))+\epsilon)$; la implementación equivalente usa productos de cosenos desplazados y epsilon 1e-6.
+`analogia(a,b,c,k)` implementa **3CosAdd**: normaliza cada palabra y busca vecinos por coseno de $\hat b-\hat a+\hat c$. Se excluyen a, b y c, como `gensim.most_similar`; se verifica igualdad del top-5 y similitudes con tolerancia numérica. **3CosMul** define $s(x,w)=(1+cos(x,w))/2$ y maximiza $s(x,b)s(x,c)/(s(x,a)+10^{-6})$, usando cosenos desplazados a [0,1].
 
 El benchmark tiene 19,544 preguntas y 14 categorías. Se exige que las cuatro palabras estén en los mismos 30,000 candidatos compartidos para todos los modelos. Accuracy se divide entre preguntas cubiertas, y cobertura entre todas las preguntas; un resultado alto con baja cobertura no significa éxito global. La columna de categorías permite distinguir relaciones semánticas y sintácticas. WordSim y SimLex finales reportan cobertura propia de cada modelo; WordSim utilizado para selección usa pares fijos.''')
 md(r'''Spearman compara rangos de cosenos y puntuaciones humanas, sin asumir una relación lineal. WordSim-353 incluye asociaciones y relaciones de significado; SimLex-999 se diseñó para medir similitud, diferenciándola de asociación. Por eso las correlaciones pueden cambiar de un benchmark a otro. [SimLex-999](https://fh295.github.io/simlex.html).''')
 code('''print(inspect.getsource(AnalogyEngine.analogia))
-display(tablas['comparison'].round(5))
+display(tablas['comparison'].set_index('model').T)
 display(tablas['categories'].round(5))
 intrinsic=load_json(ART/'evaluations'/'intrinsic.json')
 assert len(load_json(ART/'shared_vocabulary.json'))==30000
