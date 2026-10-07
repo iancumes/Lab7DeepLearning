@@ -121,6 +121,8 @@ display(pd.DataFrame([load_json(ART/'hardware.json')]))''')
 md(r'''### Referencia gensim y GloVe
 Gensim usa `sg=1`, `hs=0`, la misma dimensión, ventana fija (`shrink_windows=False`), min_count, subsampling, negativos y distribución 0.75; tiene tres epochs y las mismas tasas inicial/final. Se verifica igualdad del vocabulario y del archivo de corpus por SHA256. Su entrenamiento usa Cython y cuatro workers; las actualizaciones asíncronas, orden, implementación del muestreo y aprendizaje secuencial producen diferencias incluso con una semilla igual. Gensim descarta un negativo que coincide con el positivo, mientras esta implementación lo redibuja. Su pérdida acumulada se diferencia por epoch, pero no es directamente comparable con la media SGNS por par.
 
+El gráfico de accuracy contra tokens usa candidatos y preguntas fijos sobre la intersección de las siete variantes SGNS y GloVe. La evaluación final usa la intersección de los tres embeddings finales; por eso su cobertura y accuracy pueden diferir de las de selección.
+
 Se carga **exactamente `glove-wiki-gigaword-100`**, con 400,000 palabras, 100 dimensiones y entrenamiento publicado sobre 6 mil millones de tokens. No se reentrena GloVe en este laboratorio. El artículo original describe dos Intel Xeon E5-2658 de 2.1 GHz: 85 minutos para coocurrencias en un hilo y 14 minutos por iteración para vectores de **300 dimensiones** con 32 cores. Esos tiempos no son mediciones de `glove.6B.100d`, ni deben compararse como si fueran del mismo hardware/corpus/dimensión.
 
 [Gensim Word2Vec](https://radimrehurek.com/gensim/models/word2vec.html) · [GloVe](https://nlp.stanford.edu/projects/glove/)''')
@@ -195,7 +197,8 @@ display(pd.DataFrame([{'modelo':m,'split':s,**r} for m,parts in split['oov'].ite
 print(inspect.getsource(NewsClassifier))''')
 code('''seleccion=load_json(ART/'classification_selection.json')
 display(pd.DataFrame([{'modelo':r['name'],'fracción':r['fraction'],'epoch':r['best_epoch'],'parámetros':r['total_parameters'],'entrenables':r['trainable_parameters'],'segundos':r['training_seconds'],**r['validation']} for r in seleccion['all_results']]).round(5))
-display(Image(filename=str(ART/'figures'/'classification_curves.png')))
+for fraction in [1,10,50,100]:
+    display(Image(filename=str(ART/'figures'/f'classification_curves_{fraction}.png')))
 display(tablas['classifiers'].round(5))
 assert all(r['test_evaluations']==1 for r in load_json(ART/'evaluations'/'classification_test.json'))''')
 code('''display(Image(filename=str(ART/'figures'/'classification_vs_data.png')))

@@ -28,6 +28,10 @@ def discussion():
     s=intrinsic['sgns']['three_cos_add']['total']['accuracy']; g=intrinsic['glove']['three_cos_add']['total']['accuracy']; ge=intrinsic['gensim']['three_cos_add']['total']['accuracy']
     out.append(f"En evaluación final compartida, GloVe frente a SGNS: {100*(g-s):+.2f} puntos de accuracy; gensim frente a SGNS: {100*(ge-s):+.2f}. El experimento de corpus ofrece evidencia de escala dentro de SGNS, pero no permite repartir causalmente la diferencia con GloVe entre corpus y método. GloVe usa 6 mil millones de tokens y otra optimización. Gensim actualiza secuencialmente con cuatro workers, mientras SGNS suma gradientes de 4096 pares; cambia también el tratamiento de colisiones de negativos y el orden de muestreo.")
     out.append('Una pérdida menor no asegura mejores embeddings: SGNS separa pares reales y ruido; WordSim y analogías miden relaciones específicas. Aumentar k cambia el número de términos de la pérdida; no es válido ordenar k=5 y k=10 por su valor bruto.')
+    counterexamples=[(name,a,b) for name,rows in runs.items() for a,b in zip(rows,rows[1:]) if b['loss']>a['loss'] and b['wordsim']['spearman']>a['wordsim']['spearman']]
+    if counterexamples:
+        name,a,b=counterexamples[0]
+        out.append(f"Ejemplo observado dentro del mismo objetivo: {name}, epochs {a['epoch']}→{b['epoch']}, pérdida {a['loss']:.4f}→{b['loss']:.4f}, mientras WordSim mejora {a['wordsim']['spearman']:.4f}→{b['wordsim']['spearman']:.4f}. Por tanto, menor pérdida tampoco ordena necesariamente la calidad entre epochs de una misma configuración.")
     for fraction in [.01,.1,.5,1.0]:
         values={r['initialization']:r for r in tests if r['fraction']==fraction}
         chosen=[r for r in selection['selected'] if r['fraction']==fraction]

@@ -120,20 +120,22 @@ def figures(output=None):
     ax.legend(ncol=3,fontsize=8)
     save_figure(fig,'classification_vs_data')
     chosen=load_json(ART/'classification_selection.json')['all_results']
-    fig,axes=plt.subplots(1,3,figsize=(14,4))
-    for row in chosen:
-        if row['fraction']!=1: continue
-        history=pd.DataFrame(row['history'])
-        color=COLORS[row['initialization']]
-        style='--' if row['freeze'] else '-'
-        axes[0].plot(history.epoch,history.train_loss,label=row['name'],color=color,linestyle=style)
-        axes[1].plot(history.epoch,history.validation_loss,label=row['name'],color=color,linestyle=style)
-        axes[2].plot(history.epoch,history.f1_macro*100,label=row['name'],color=color,linestyle=style)
-    axes[0].set(xlabel='Epoch',ylabel='Pérdida de entrenamiento')
-    axes[1].set(xlabel='Epoch',ylabel='Pérdida de validación')
-    axes[2].set(xlabel='Epoch',ylabel='F1 macro de validación (%)')
-    axes[2].legend(fontsize=7,ncol=2)
-    save_figure(fig,'classification_curves')
+    for fraction in [.01,.1,.5,1.0]:
+        fig,axes=plt.subplots(1,3,figsize=(14,4))
+        for row in chosen:
+            if row['fraction']!=fraction: continue
+            history=pd.DataFrame(row['history'])
+            color=COLORS[row['initialization']]
+            style='--' if row['freeze'] else '-'
+            axes[0].plot(history.epoch,history.train_loss,label=row['name'],color=color,linestyle=style)
+            axes[1].plot(history.epoch,history.validation_loss,label=row['name'],color=color,linestyle=style)
+            axes[2].plot(history.epoch,history.f1_macro*100,label=row['name'],color=color,linestyle=style)
+        axes[0].set(xlabel='Epoch',ylabel='Pérdida de entrenamiento')
+        axes[1].set(xlabel='Epoch',ylabel='Pérdida de validación')
+        axes[2].set(xlabel='Epoch',ylabel='F1 macro de validación (%)')
+        axes[2].legend(fontsize=7,ncol=2)
+        fig.suptitle(f'AG News: {100*fraction:g}% del entrenamiento')
+        save_figure(fig,f'classification_curves_{int(fraction*100)}')
     tests=[r for r in load_json(ART/'evaluations'/'classification_test.json') if r['fraction']==1]
     fig,axes=plt.subplots(1,5,figsize=(16,3.5))
     for ax,row in zip(axes,tests):
