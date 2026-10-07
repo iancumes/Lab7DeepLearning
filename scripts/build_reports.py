@@ -67,11 +67,21 @@ def build_content():
         valid=[r for r in rows if not r['oov']]
         hits=[r for r in valid if r['rank']==1]
         failures=sorted([r for r in valid if r['rank']>1],key=lambda r:r['rank'],reverse=True)
-        for label,pool in [('Acierto',hits),('Fallo',failures)]:
+        # Un ejemplo por modelo; las 54 consultas completas están en el notebook.
+        for label,pool in [('Acierto' if hits else 'Fallo',hits or failures)]:
             if pool:
                 r=pool[0]
                 examples.append([name,label,f"{r['b']} − {r['a']} + {r['c']}",r['expected'],r['top5'][0][0],r['rank']])
     covered=intrinsic['sgns']['three_cos_add']['total']
+    labels=['Capitales comunes','Capitales mundo','Monedas','Ciudades/estados','Familia',
+            'Adj.→adverbio','Opuestos','Comparativos','Superlativos','Gerundios',
+            'Gentilicios','Pasado','Plurales','Verbos plurales']
+    categoryrows=[]
+    for index,label in enumerate(labels):
+        values=[]
+        for model in ['sgns','gensim','glove']:
+            values.append('/'.join('N/D' if intrinsic[model][method]['categories'][index]['accuracy'] is None else f"{100*intrinsic[model][method]['categories'][index]['accuracy']:.1f}" for method in ['three_cos_add','three_cos_mul']))
+        categoryrows.append([label]+values)
     pages.append([
       h('Aritmética vectorial y geometría'),
       p('analogia(a,b,c,k) implementa 3CosAdd con vectores individuales normalizados y búsqueda por coseno de b−a+c. Se excluyen las consultas a/b/c y se verificó coincidencia de top-5 y similitudes con gensim. 3CosMul usa el cociente de productos de cosenos desplazados a [0,1], con epsilon=10⁻⁶. Las consultas excluidas impiden respuestas triviales.'),
@@ -79,9 +89,9 @@ def build_content():
       table(['Modelo','Semántica Add','Sintáctica Add','Total Add','Total Mul','Paralelismo'],[[name,percent(r['three_cos_add']['semantic']['accuracy']),percent(r['three_cos_add']['syntactic']['accuracy']),percent(r['three_cos_add']['total']['accuracy']),percent(r['three_cos_mul']['total']['accuracy']),rho(parallel[name]['mean_cosine'])] for name,r in intrinsic.items()]),
       p('Se probaron 18 analogías personales de seis tipos, con top-5, similitudes, rango correcto, OOV y búsqueda con/sin exclusión. Ejemplos observados:'),
       table(['Modelo','Resultado','Consulta','Esperado','Top 1','Rango'],examples),
+      table(['Categoría','SGNS Add/Mul %','Gensim Add/Mul %','GloVe Add/Mul %'],categoryrows),
       p('El coseno entre b−a y d−c cuantifica el paralelismo de relaciones equivalentes. Un valor alto no garantiza que d supere a todos sus competidores. Las relaciones de capitales, género, nacionalidad y morfología muestran regularidades y errores distintos.'),
-      ('image','tsne_sgns.png',2.7),
-      p('t-SNE del SGNS seleccionado con aproximadamente 500 palabras compartidas, agrupadas previamente por relaciones léxicas. Semilla 23236, coseno, perplexity 30, 1500 iteraciones. Los ejes y distancias globales no se interpretan como medidas semánticas; el notebook muestra además gensim y GloVe.')])
+      p('El notebook muestra t-SNE de aproximadamente 500 palabras por modelo: grupos definidos previamente, coseno, perplexity 30, 1500 iteraciones, semilla 23236. Los ejes y distancias globales no se interpretan como medidas semánticas.')])
     fractionrows=[]
     for f in [.01,.1,.5,1.0]:
         values={r['initialization']:r for r in test if r['fraction']==f}
@@ -115,6 +125,7 @@ def build_content():
       h('Conclusiones y referencias'),
       table(['Modelo','d','Vocab','ρ WS','Cob WS','ρ SL','Cob SL','F1 test','Min entren'],compare),
       p('WS=WordSim-353; SL=SimLex-999. Las correlaciones finales usan pares cubiertos por cada vocabulario, por lo que se muestra cobertura. SimLex se evaluó después de cerrar la selección de embeddings. Los tiempos de SGNS/gensim suman tres epochs de la configuración comparada, sin descarga ni evaluación.'),
+      p('OOV de tokens en test AG News: '+', '.join(f"{name} {percent(read('news_split.json')['oov'][name]['test']['unknown_fraction'])}" for name in ['sgns','gensim','glove'])+'. SGNS y gensim usan '+number(best['corpus_tokens'])+' tokens normalizados; GloVe usa 6000000000. El hardware medido y el publicado se distinguen en la página 2.'),
       p(f"La configuración SGNS elegida fue {best['config']['name']} en epoch {best['epoch']}. {intrinsic_winner} obtuvo la mayor correlación SimLex observada. La tabla muestra que calidad intrínseca y F1 de clasificación deben examinarse por separado: son tareas con objetivos y distribuciones distintos."),
       p(f"Con 1% de etiquetas, GloVe obtuvo F1 {percent(one['glove']['metrics']['f1_macro'])} frente a {percent(one['random']['metrics']['f1_macro'])} del embedding aleatorio: diferencia {gain*100:+.2f} puntos porcentuales. Esta diferencia cuantifica la utilidad observada de la inicialización preentrenada con pocas etiquetas; no demuestra superioridad universal."),
       p('El subsampling redujo pares redundantes de palabras frecuentes. Dimensión, ventana y negativos cambian capacidad y costo; aumentar dimensión o corpus no garantiza mejorar cada métrica en solo tres epochs. SGNS y gensim entrenan el mismo corpus, pero difieren en orden y actualización. GloVe dispone de muchos más tokens: la comparación no aísla el efecto de arquitectura.'),
@@ -176,9 +187,12 @@ def build_word(pages):
     doc.save(OUT/'Laboratorio7_Ian_Cumes_23236.docx')
 
 def build_pdf(pages):
-    fontroot=Path('C:/Windows/Fonts')
-    pdfmetrics.registerFont(TTFont('ArialLab',str(fontroot/'arial.ttf')))
-    pdfmetrics.registerFont(TTFont('ArialLabBold',str(fontroot/'arialbd.ttf')))
+    candidates=[(Path('C:/Windows/Fonts/arial.ttf'),Path('C:/Windows/Fonts/arialbd.ttf')),
+                (Path('/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf'),Path('/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf')),
+                (Path('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'),Path('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'))]
+    regular,bold=next((a,b) for a,b in candidates if a.exists() and b.exists())
+    pdfmetrics.registerFont(TTFont('ArialLab',str(regular)))
+    pdfmetrics.registerFont(TTFont('ArialLabBold',str(bold)))
     style=ParagraphStyle('body',fontName='ArialLab',fontSize=10,leading=12.5,spaceAfter=6)
     heading=ParagraphStyle('heading',parent=style,fontName='ArialLabBold',fontSize=14,leading=17,spaceAfter=8)
     small=ParagraphStyle('cell',parent=style,fontSize=8,leading=10,spaceAfter=0)
