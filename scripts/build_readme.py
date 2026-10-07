@@ -82,7 +82,7 @@ La auditoría [verification.json](artifacts/verification.json) comprueba 21 chec
 
 ## Alcance y límites
 
-Solo tres epochs y una semilla; no se estiman intervalos de confianza ni significancia. Gensim usa cuatro workers y actualizaciones secuenciales asíncronas; SGNS usa minibatches de 4096 pares y redibuja colisiones de negativos. Estas diferencias impiden exigir igualdad numérica. El promedio de embeddings ignora orden y negación. GloVe usa 6 mil millones de tokens: la comparación no aísla causalmente corpus, método y optimización.
+Solo tres epochs y una semilla; no se estiman intervalos de confianza ni significancia. Gensim usa cuatro workers y actualizaciones secuenciales asíncronas; SGNS usa minibatches de 4096 pares y redibuja colisiones de negativos. Las operaciones dispersas CUDA y el paralelismo de gensim pueden introducir variación numérica al repetir, aun fijando semillas. Los pesos publicados se identifican por hash. El promedio de embeddings ignora orden y negación. GloVe usa 6 mil millones de tokens: la comparación no aísla causalmente corpus, método y optimización.
 
 El artículo de GloVe informa dos Intel Xeon E5-2658, 85 minutos de coocurrencias y 14 minutos por iteración con **300 dimensiones y 32 cores**. Esos tiempos no se presentan como mediciones del modelo de **100 dimensiones** utilizado aquí.
 

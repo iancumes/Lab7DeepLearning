@@ -206,7 +206,7 @@ print('Ganancia GloVe sobre aleatorio por fracción:')
 display((comparacion.glove-comparacion.random).rename('Δ F1 macro'))''')
 md(r'''## 5 Conclusiones y límites
 
-Las conclusiones siguientes se calculan desde las tablas guardadas. Se distingue selección por validación de evaluación final. Tres epochs y una sola semilla limitan la evidencia: no se atribuyen diferencias pequeñas a una superioridad general ni se inventan intervalos de confianza. GloVe usa un corpus mucho mayor; su ventaja puede reflejar datos, optimización y arquitectura. Los modelos Bag ignoran orden y negación; TF-IDF con bigramas recupera parte de ese orden local. Fine-tuning puede corregir dominio/OOV, pero con pocas etiquetas también puede sobreajustar.''')
+Las conclusiones siguientes se calculan desde las tablas guardadas. Se distingue selección por validación de evaluación final. Tres epochs y una sola semilla limitan la evidencia: no se atribuyen diferencias pequeñas a una superioridad general ni se inventan intervalos de confianza. Las operaciones dispersas CUDA y los workers asíncronos de gensim pueden introducir variación numérica al repetir; los pesos publicados se identifican por hash. GloVe usa un corpus mucho mayor; su ventaja puede reflejar datos, optimización y arquitectura. Los modelos Bag ignoran orden y negación; TF-IDF con bigramas recupera parte de ese orden local. Fine-tuning puede corregir dominio/OOV, pero con pocas etiquetas también puede sobreajustar.''')
 code('''comp=tablas['comparison']
 clas=tablas['classifiers']
 print('SGNS seleccionado:',mejor['config']['name'],'epoch',mejor['epoch'])
