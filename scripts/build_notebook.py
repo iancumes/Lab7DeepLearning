@@ -37,8 +37,8 @@ import pandas as pd
 from IPython.display import display, Markdown, Image
 from src.common import ART, CHECKPOINTS, load_json, experiment_configs
 from src.preprocessing import tokenize, normalize, pair_batches, pair_count
-from src.embeddings import SGNS, AnalogyEngine
-from src.classification import NewsClassifier
+from src.embeddings import SGNS, AnalogyEngine, train_sgns, train_gensim
+from src.classification import NewsClassifier, train_neural, train_tfidf
 from src.reporting import tables, figures
 pd.set_option('display.max_rows',200)
 pd.set_option('display.max_columns',20)
@@ -99,6 +99,7 @@ Se generan pares ordenados por bloques de centros, con ventana fija ±w y sin cr
 Las siete configuraciones cambian un factor respecto de la base: dimensión 50/300, corpus 25/50 %, ventana 2 y diez negativos. La selección de configuración y epoch usa WordSim-353 sobre pares cubiertos por todas las variantes, con accuracy de analogías para desempatar. Las analogías de selección usan candidatos fijos. SimLex-999 no se consulta durante esa selección.''')
 code('''print(inspect.getsource(SGNS))
 print(inspect.getsource(pair_batches))
+print(inspect.getsource(train_sgns))
 display(tablas['epochs'].round(5))''')
 code('''subs=[]
 for cfg in configuraciones:
@@ -127,6 +128,7 @@ Se carga **exactamente `glove-wiki-gigaword-100`**, con 400,000 palabras, 100 di
 
 [Gensim Word2Vec](https://radimrehurek.com/gensim/models/word2vec.html) · [GloVe](https://nlp.stanford.edu/projects/glove/)''')
 code('''gensim_log=load_json(ART/'runs'/'gensim.json')
+print(inspect.getsource(train_gensim))
 display(pd.DataFrame([{k:v for k,v in r.items() if k not in ['neighbors','analogies','wordsim']} | {'wordsim':r['wordsim']['spearman'],'accuracy':r['analogies']['total']['accuracy']} for r in gensim_log]))
 display(pd.DataFrame([load_json(ART/'glove_source.json')]))
 display(pd.DataFrame([{'epoch':r['epoch'],'palabra':w,'vecinos':', '.join(f'{word} ({s:.3f})' for word,s in neighbors)} for r in gensim_log for w,neighbors in r['neighbors'].items()]))
@@ -186,7 +188,9 @@ Se separa el entrenamiento oficial estratificadamente en 108,000 ejemplos de ent
 
 La referencia TF-IDF usa unigramas/bigramas, min_df=2, hasta 100,000 características y regresión logística L2 optimizada con `SGDClassifier(loss='log_loss')`. Los modelos neuronales comparten `EmbeddingBag(mean) → Linear(d,128) → ReLU → Dropout(0.2) → Linear(128,4)`, Adam 1e-3 y batch 512. La entrada se adapta a la dimensión de cada embedding. El vocabulario conserva hasta 50,000 palabras con frecuencia ≥2, más padding y UNK.
 
-Se compara inicialización aleatoria ajustable de 100d con SGNS, gensim y GloVe, cada uno congelado y ajustable. Los OOV de embeddings preentrenados parten de cero; congelados no contribuyen contenido léxico, ajustables pueden aprender. Todos comparten los mismos documentos y orden de minibatches. Máximo 10 epochs y parada después de dos epochs sin mejorar F1 macro. Se selecciona congelado/ajustable y checkpoint con validación. El manifiesto fija decisiones y hashes **antes** de evaluar test. Cada uno de los 20 modelos seleccionados (5 referencias × 4 fracciones) se evalúa una sola vez; sus predicciones y matrices quedan guardadas.''')
+Se compara inicialización aleatoria ajustable de 100d con SGNS, gensim y GloVe, cada uno congelado y ajustable. Los OOV de embeddings preentrenados parten de cero; congelados no contribuyen contenido léxico, ajustables pueden aprender. Los modelos neuronales comparten documentos y orden de minibatches; TF-IDF usa las mismas particiones. Máximo 10 epochs y parada después de dos epochs sin mejorar F1 macro. Se selecciona congelado/ajustable y checkpoint con validación. El manifiesto fija decisiones y hashes **antes** de evaluar test. Cada uno de los 20 modelos seleccionados (5 referencias × 4 fracciones) se evalúa una sola vez; sus predicciones y matrices quedan guardadas.
+
+Los tiempos neuronales miden entrenamiento y validación desde la primera epoch; excluyen codificación e inicialización de embeddings. El tiempo de TF-IDF incluye ajuste y transformación de características, además de entrenamiento y validación. Se informa este alcance para evitar interpretar los tiempos como costos idénticos de preparación.''')
 code('''split=load_json(ART/'news_split.json')
 train=set(split['train_indices']); val=set(split['validation_indices'])
 assert not train & val
@@ -194,7 +198,9 @@ subsets=[set(split['subsets'][str(f)]) for f in [.01,.1,.5,1.0]]
 assert all(subsets[i]<=subsets[i+1]<=train for i in range(3))
 display(pd.DataFrame([{'fracción':f,'ejemplos':len(split['subsets'][str(f)])} for f in [.01,.1,.5,1.0]]))
 display(pd.DataFrame([{'modelo':m,'split':s,**r} for m,parts in split['oov'].items() for s,r in parts.items()]))
-print(inspect.getsource(NewsClassifier))''')
+print(inspect.getsource(NewsClassifier))
+print(inspect.getsource(train_neural))
+print(inspect.getsource(train_tfidf))''')
 code('''seleccion=load_json(ART/'classification_selection.json')
 display(pd.DataFrame([{'modelo':r['name'],'fracción':r['fraction'],'epoch':r['best_epoch'],'parámetros':r['total_parameters'],'entrenables':r['trainable_parameters'],'segundos':r['training_seconds'],**r['validation']} for r in seleccion['all_results']]).round(5))
 for fraction in [1,10,50,100]:
@@ -244,5 +250,6 @@ Los checkpoints por epoch se preservan en el respaldo de entrenamiento; los arch
 Repositorio de la entrega: https://github.com/iancumes/Lab7DeepLearning''')
 nb.cells=cells
 nb.metadata={'kernelspec':{'display_name':'Python 3','language':'python','name':'python3'},'language_info':{'name':'python','version':'3.11'},'colab':{'name':'Laboratorio7_Ian_Cumes_23236.ipynb'}}
-nbf.write(nb,ROOT/'Laboratorio7_Ian_Cumes_23236.ipynb')
+with (ROOT/'Laboratorio7_Ian_Cumes_23236.ipynb').open('w',encoding='utf-8',newline='\n') as output:
+    nbf.write(nb,output)
 print('Notebook creado:',len(cells),'celdas')

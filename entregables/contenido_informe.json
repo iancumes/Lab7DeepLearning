@@ -1,0 +1,625 @@
+[
+  [
+    [
+      "h",
+      "Investigación y preprocesamiento"
+    ],
+    [
+      "p",
+      "Se implementó SGNS propio y se comparó con gensim y GloVe en analogías, similitud léxica y clasificación AG News. El mejor clasificador observado con todos los datos fue sgns_finetune, con F1 macro 92.10% en test. El notebook conserva resultados extensos, código comentado y manifiestos reproducibles."
+    ],
+    [
+      "p",
+      "CBOW predice el centro desde el contexto; Skip-Gram predice contexto desde el centro. Negative sampling discrimina pares reales frente a ruido unigram elevado a 0.75. GloVe ajusta productos de vectores a logaritmos de coocurrencias globales ponderadas. Los dos métodos capturan relaciones distribucionales, pero asignan un único vector por palabra y pueden reproducir sesgos."
+    ],
+    [
+      "p",
+      "nn.Embedding representa una tabla V × d. from_pretrained permite inicialización y congelamiento. EmbeddingBag reduce cada documento por mean, sum o max; offsets indica comienzos dentro de IDs concatenados. Aquí se usa mean, padding_idx=0 y una bolsa por noticia."
+    ],
+    [
+      "p",
+      "El tokenizador propio usa minúsculas, palabras Unicode, apóstrofos internos, números y puntuación; repara marcadores @ y elimina especiales y signos de encabezados. Se comparó con NLTK Treebank en 12 oraciones: las contracciones y posesivos explican diferencias. No se aplicó stemming ni eliminación de stopwords."
+    ],
+    [
+      "table",
+      [
+        "Split",
+        "Artículos",
+        "Líneas",
+        "Tokens normalizados"
+      ],
+      [
+        [
+          "train",
+          "29 443",
+          "1 801 350",
+          "102 356 963"
+        ],
+        [
+          "validation",
+          "60",
+          "3 760",
+          "216 023"
+        ],
+        [
+          "test",
+          "62",
+          "4 358",
+          "242 994"
+        ]
+      ]
+    ],
+    [
+      "p",
+      "Se seleccionaron 5 886 artículos completos del entrenamiento, con semilla 23236, hasta 20 000 727 tokens. Los corpus 25/50/100% son prefijos anidados que terminan en artículos completos. Zipf: los top 10/1000/30000 cubren 28.69%/69.80%/96.26% de tokens."
+    ],
+    [
+      "table",
+      [
+        "min_count",
+        "Vocabulario seleccionado",
+        "Tokens excluidos"
+      ],
+      [
+        [
+          1,
+          "211 559",
+          "0.00%"
+        ],
+        [
+          5,
+          "72 216",
+          "1.14%"
+        ],
+        [
+          10,
+          "49 323",
+          "1.89%"
+        ]
+      ]
+    ],
+    [
+      "p",
+      "La preparación preserva fronteras de línea y bloques de hasta 1000 tokens. Gensim y SGNS reciben el mismo archivo de tokens elegibles, comprobado por hash y vocabulario. Los especiales y palabras bajo min_count no generan pares de entrenamiento."
+    ]
+  ],
+  [
+    [
+      "h",
+      "Entrenamiento y selección"
+    ],
+    [
+      "p",
+      "El SGNS propio usa dos tablas nn.Embedding dispersas. Minimiza −log σ(v·u) − Σ log σ(−v·n), preservando los vectores de entrada. Genera pares por bloques, sin cruzar contextos; rechaza negativos iguales al contexto positivo. La suma del minibatch guía SGD y la pérdida publicada se promedia por par."
+    ],
+    [
+      "p",
+      "Cada configuración tiene tres epochs, minibatch de 4096 pares, min_count=5, subsampling t=10^-4 y SGD con learning rate lineal 0.025→0.0001. La ventana es fija. Se guardan checkpoint, pérdida, analogías semánticas/sintácticas, WordSim, vecinos de seis palabras, tiempos y memoria por epoch. La selección usa WordSim sin redondear sobre pares comunes y accuracy de analogías como desempate; SimLex queda reservado."
+    ],
+    [
+      "table",
+      [
+        "Configuración",
+        "d/w/k",
+        "Tokens corpus",
+        "Epoch",
+        "ρ WordSim",
+        "Acc analogías",
+        "Min total"
+      ],
+      [
+        [
+          "base100",
+          "100/5/5",
+          "20 000 727",
+          3,
+          "0.64609",
+          "27.67%",
+          "7.7"
+        ],
+        [
+          "dim50",
+          "50/5/5",
+          "20 000 727",
+          3,
+          "0.62422",
+          "22.48%",
+          "7.6"
+        ],
+        [
+          "dim300",
+          "300/5/5",
+          "20 000 727",
+          3,
+          "0.63519",
+          "27.27%",
+          "7.5"
+        ],
+        [
+          "corpus25",
+          "100/5/5",
+          "5 005 631",
+          3,
+          "0.53328",
+          "8.00%",
+          "1.6"
+        ],
+        [
+          "corpus50",
+          "100/5/5",
+          "10 007 877",
+          3,
+          "0.59154",
+          "17.23%",
+          "3.2"
+        ],
+        [
+          "window2",
+          "100/2/5",
+          "20 000 727",
+          3,
+          "0.57344",
+          "24.32%",
+          "2.7"
+        ],
+        [
+          "negative10",
+          "100/5/10",
+          "20 000 727",
+          3,
+          "0.64603",
+          "30.05%",
+          "9.9"
+        ]
+      ]
+    ],
+    [
+      "p",
+      "Selección: base100, epoch 3, ρ WordSim=0.64609. En la base, el subsampling redujo 191 078 458 pares a 99 965 588 en la primera epoch; conservó 10 599 920 tokens elegibles. La pérdida media base pasó de 2.263 a 2.240."
+    ],
+    [
+      "p",
+      "El descarte observado de the/of/and en la primera epoch fue the: 95.89%, of: 93.55%, and: 93.27%."
+    ],
+    [
+      "p",
+      "Hardware medido: Tesla T4, PyTorch 2.8.0+cu126, Python 3.12.12; tiempo SGNS acumulado de las siete configuraciones 40.2 minutos. La memoria GPU máxima asignada a tensores durante entrenamiento fue 242.9 MiB. Estos tiempos excluyen descarga y evaluación."
+    ],
+    [
+      "p",
+      "Gensim se entrenó en CPU Intel(R) Xeon(R) CPU @ 2.00GHz con cuatro workers, el mismo corpus/vocabulario y parámetros equivalentes. Sus actualizaciones Cython asíncronas difieren de los minibatches; descarta colisiones de negativos en vez de redibujarlas. Se registra cada epoch, sin exigir vectores numéricamente iguales."
+    ],
+    [
+      "p",
+      "GloVe es exactamente glove-wiki-gigaword-100: 400000 palabras, 100d y 6 mil millones de tokens. El artículo informa dos Intel Xeon E5-2658 de 2.1 GHz, 85 min de coocurrencias en un hilo y 14 min por iteración de 300d en 32 cores. Son mediciones publicadas de otra dimensión; aquí no se entrenó GloVe."
+    ]
+  ],
+  [
+    [
+      "h",
+      "Aritmética vectorial y geometría"
+    ],
+    [
+      "p",
+      "analogia(a,b,c,k) implementa 3CosAdd con vectores individuales normalizados y búsqueda por coseno de b−a+c. Se excluyen las consultas a/b/c y se verificó coincidencia de top-5 y similitudes con gensim. 3CosMul usa el cociente de productos de cosenos desplazados a [0,1], con epsilon=10^-6. Las consultas excluidas impiden respuestas triviales."
+    ],
+    [
+      "p",
+      "Los tres embeddings se evalúan sobre las mismas 12 227 preguntas cubiertas de 19 544, en 14 categorías, con exactamente 30000 candidatos compartidos: cobertura 62.56%. Accuracy usa solo preguntas cubiertas; la cobertura debe acompañarla. Los resultados por categoría están en el notebook."
+    ],
+    [
+      "table",
+      [
+        "Modelo",
+        "Sem. Add/Mul %",
+        "Sint. Add/Mul %",
+        "Total Add",
+        "Total Mul",
+        "Paralelismo"
+      ],
+      [
+        [
+          "sgns",
+          "21.24/19.87",
+          "31.48/29.08",
+          "28.24%",
+          "26.16%",
+          "0.44716"
+        ],
+        [
+          "gensim",
+          "22.27/20.80",
+          "31.83/29.57",
+          "28.81%",
+          "26.79%",
+          "0.45638"
+        ],
+        [
+          "glove",
+          "60.36/57.29",
+          "67.23/65.85",
+          "65.05%",
+          "63.14%",
+          "0.59617"
+        ]
+      ]
+    ],
+    [
+      "p",
+      "Se probaron 18 analogías personales de seis tipos, con top-5, similitudes, rango correcto, OOV y búsqueda con/sin exclusión. Ejemplos observados:"
+    ],
+    [
+      "table",
+      [
+        "Modelo",
+        "Resultado",
+        "Consulta",
+        "Esperado",
+        "Top 1",
+        "Rango"
+      ],
+      [
+        [
+          "sgns",
+          "Acierto",
+          "sister − brother + uncle",
+          "aunt",
+          "aunt",
+          1
+        ],
+        [
+          "gensim",
+          "Acierto",
+          "paris − france + germany",
+          "berlin",
+          "berlin",
+          1
+        ],
+        [
+          "glove",
+          "Acierto",
+          "woman − man + king",
+          "queen",
+          "queen",
+          1
+        ]
+      ]
+    ],
+    [
+      "table",
+      [
+        "Categoría",
+        "SGNS Add/Mul %",
+        "Gensim Add/Mul %",
+        "GloVe Add/Mul %"
+      ],
+      [
+        [
+          "Capitales comunes",
+          "32.9/31.2",
+          "35.1/34.2",
+          "94.4/92.4"
+        ],
+        [
+          "Capitales mundo",
+          "19.0/17.9",
+          "19.9/19.1",
+          "87.4/83.8"
+        ],
+        [
+          "Monedas",
+          "0.0/0.0",
+          "0.0/0.0",
+          "5.7/8.6"
+        ],
+        [
+          "Ciudades/estados",
+          "15.4/13.9",
+          "16.7/14.7",
+          "28.7/25.1"
+        ],
+        [
+          "Familia",
+          "47.7/46.5",
+          "46.8/44.2",
+          "88.3/87.4"
+        ],
+        [
+          "Adj.→adverbio",
+          "4.6/3.8",
+          "5.7/4.7",
+          "28.1/28.2"
+        ],
+        [
+          "Opuestos",
+          "6.5/3.9",
+          "6.5/3.3",
+          "28.8/24.8"
+        ],
+        [
+          "Comparativos",
+          "35.2/31.6",
+          "36.5/34.3",
+          "80.4/78.0"
+        ],
+        [
+          "Superlativos",
+          "19.5/20.4",
+          "19.4/19.7",
+          "61.3/62.4"
+        ],
+        [
+          "Gerundios",
+          "23.8/19.4",
+          "22.6/18.4",
+          "73.1/72.2"
+        ],
+        [
+          "Gentilicios",
+          "62.4/62.5",
+          "61.4/60.1",
+          "97.3/95.8"
+        ],
+        [
+          "Pasado",
+          "39.9/35.8",
+          "42.4/38.7",
+          "55.9/53.6"
+        ],
+        [
+          "Plurales",
+          "28.7/23.9",
+          "28.5/24.7",
+          "79.1/74.8"
+        ],
+        [
+          "Verbos plurales",
+          "17.9/16.7",
+          "16.8/16.4",
+          "58.5/60.6"
+        ]
+      ]
+    ],
+    [
+      "p",
+      "En SGNS, woman−man+king coloca queen en rango 110 (coseno 0.599); sin exclusión, gana king. El ≈ no es una igualdad. El coseno entre b−a y d−c mide paralelismo sin garantizar el ranking. El notebook incluye t-SNE de 500 palabras por modelo: temas predefinidos, coseno, perplexity 30, 1500 iteraciones y semilla 23236; sus ejes y distancias globales no son medidas semánticas."
+    ]
+  ],
+  [
+    [
+      "h",
+      "Clasificación de noticias"
+    ],
+    [
+      "p",
+      "AG News se separó en 108000 ejemplos de entrenamiento y 12000 de validación estratificada, sin solapamiento de índices; test oficial contiene 7600. Las fracciones 1/10/50/100% usan 1080/10800/54000/108000 ejemplos anidados por clase. Cada vocabulario y TF-IDF se aprende únicamente desde la fracción correspondiente."
+    ],
+    [
+      "p",
+      "TF-IDF usa unigramas/bigramas, min_df=2 y hasta 100000 características; regresión logística L2 con optimización SGD. Todos los modelos neuronales usan EmbeddingBag(mean) → MLP de 128 unidades, ReLU, dropout 0.2 y salida de cuatro clases. Adam 0.001, batch 512, máximo 10 epochs y parada tras dos epochs sin mejorar F1 macro."
+    ],
+    [
+      "p",
+      "La inicialización aleatoria tiene 100d. SGNS, gensim y GloVe se comparan congelados y ajustables, adaptando solo la entrada a su dimensión. Los OOV preentrenados parten de cero; congelados no aportan señal léxica y ajustables pueden aprender. Validación fija variante y checkpoint antes de evaluar test; se guardan hashes, predicciones y matrices."
+    ],
+    [
+      "table",
+      [
+        "Fracción",
+        "TF-IDF",
+        "Aleatorio",
+        "SGNS",
+        "Gensim",
+        "GloVe"
+      ],
+      [
+        [
+          "1%",
+          "81.94%",
+          "31.20%",
+          "71.89%",
+          "80.68%",
+          "66.73%"
+        ],
+        [
+          "10%",
+          "89.28%",
+          "88.75%",
+          "89.19%",
+          "89.03%",
+          "89.23%"
+        ],
+        [
+          "50%",
+          "91.36%",
+          "91.62%",
+          "91.53%",
+          "91.58%",
+          "91.52%"
+        ],
+        [
+          "100%",
+          "91.61%",
+          "92.10%",
+          "92.10%",
+          "92.03%",
+          "92.08%"
+        ]
+      ]
+    ],
+    [
+      "p",
+      "F1 macro en test por fracción. Cada columna usa la variante elegida exclusivamente con validación para esa fracción; no se cambió la selección después de ver test."
+    ],
+    [
+      "table",
+      [
+        "Modelo al 100%",
+        "Acc",
+        "P macro",
+        "R macro",
+        "F1 macro",
+        "Par entrenables",
+        "Min"
+      ],
+      [
+        [
+          "tfidf",
+          "91.63%",
+          "91.62%",
+          "91.63%",
+          "91.61%",
+          "400 004",
+          "0.7"
+        ],
+        [
+          "random",
+          "92.11%",
+          "92.11%",
+          "92.11%",
+          "92.10%",
+          "4 383 644",
+          "0.1"
+        ],
+        [
+          "sgns_finetune",
+          "92.11%",
+          "92.12%",
+          "92.11%",
+          "92.10%",
+          "4 383 644",
+          "0.1"
+        ],
+        [
+          "gensim_finetune",
+          "92.04%",
+          "92.06%",
+          "92.04%",
+          "92.03%",
+          "4 383 644",
+          "0.1"
+        ],
+        [
+          "glove_finetune",
+          "92.09%",
+          "92.09%",
+          "92.09%",
+          "92.08%",
+          "4 383 644",
+          "0.1"
+        ]
+      ]
+    ],
+    [
+      "p",
+      "El mayor F1 al 100% fue sgns_finetune (92.10%), apenas 0.0020 puntos sobre random; no se estima significancia. La matriz con más errores fue tfidf; su mayor confusión dirigida fue Business→Sci/Tech (155 ejemplos). Las veinte matrices y curvas están guardadas en el notebook y archivos JSON/CSV."
+    ],
+    [
+      "p",
+      "Los embeddings congelados exigen menos parámetros entrenables; fine-tuning adapta dominio y OOV, pero requiere etiquetas. La referencia TF-IDF puede competir bien en noticias por su señal léxica y bigramas. La ventaja observada con poco entrenamiento se interpreta en la siguiente página, sin atribuir causalidad a una única semilla."
+    ]
+  ],
+  [
+    [
+      "h",
+      "Conclusiones y referencias"
+    ],
+    [
+      "table",
+      [
+        "Modelo",
+        "d",
+        "Vocab",
+        "ρ WS",
+        "Cob WS",
+        "ρ SL",
+        "Cob SL",
+        "F1 test",
+        "Min entren"
+      ],
+      [
+        [
+          "sgns",
+          100,
+          "72 216",
+          "0.64358",
+          "98.87%",
+          "0.28274",
+          "99.60%",
+          "92.10%",
+          "7.7"
+        ],
+        [
+          "gensim",
+          100,
+          "72 216",
+          "0.63491",
+          "98.87%",
+          "0.28432",
+          "99.60%",
+          "92.03%",
+          "5.7"
+        ],
+        [
+          "glove",
+          100,
+          "400 000",
+          "0.53274",
+          "100.00%",
+          "0.29755",
+          "100.00%",
+          "92.08%",
+          "Externo"
+        ]
+      ]
+    ],
+    [
+      "p",
+      "WS=WordSim-353; SL=SimLex-999. Las correlaciones finales usan pares cubiertos por cada vocabulario, por lo que se muestra cobertura. SimLex se evaluó después de cerrar la selección de embeddings. Los tiempos de SGNS/gensim suman tres epochs de la configuración comparada, sin descarga ni evaluación."
+    ],
+    [
+      "p",
+      "OOV de tokens en test AG News: sgns 3.32%, gensim 3.32%, glove 0.88%. SGNS y gensim usan 20 000 727 tokens normalizados; GloVe usa 6000000000. El hardware medido y el publicado se distinguen en la página 2."
+    ],
+    [
+      "p",
+      "La configuración SGNS elegida fue base100 en epoch 3. glove obtuvo la mayor correlación SimLex observada. La tabla muestra que calidad intrínseca y F1 de clasificación deben examinarse por separado: son tareas con objetivos y distribuciones distintos."
+    ],
+    [
+      "p",
+      "Con 1% de etiquetas, GloVe obtuvo F1 66.73% frente a 31.20% del embedding aleatorio: +35.53 puntos. TF-IDF fue superior a ambos (81.94%). Validación eligió fine-tuning para los tres preentrenados en todas las fracciones; el beneficio depende de datos y tarea."
+    ],
+    [
+      "p",
+      "A epoch 3, 50/300d no superaron la base en WordSim; ventana 2 obtuvo 0.57344. Diez negativos casi empataron (0.64603) con más costo. Aumentar corpus 25→100% elevó accuracy de 8.00% a 27.67%. GloVe dispone de muchos más tokens; no se aísla causalmente el efecto del método."
+    ],
+    [
+      "p",
+      "Limitaciones: tres epochs, una semilla, sin intervalos de confianza; embeddings estáticos y promedio sin orden ni negación; tokenización y cobertura diferentes. Futuro: varias semillas, más entrenamiento y modelos sensibles al contexto."
+    ],
+    [
+      "p",
+      "Verificación: pérdida y gradientes contra entropía cruzada binaria, fronteras de contexto, exclusión de consultas y coincidencia con gensim; corpus mínimo y hashes, subconjuntos anidados, selección bloqueada y una evaluación test por modelo. El notebook se ejecutó desde kernel limpio. Los checkpoints y registros reales se recuperaron de Colab."
+    ],
+    [
+      "h",
+      "Referencias"
+    ],
+    [
+      "p",
+      "Mikolov et al. (2013). Distributed Representations of Words and Phrases and their Compositionality. NeurIPS. Pennington, Socher y Manning (2014). GloVe: Global Vectors for Word Representation. EMNLP. https://nlp.stanford.edu/pubs/glove.pdf"
+    ],
+    [
+      "p",
+      "PyTorch 2.8: Embedding y EmbeddingBag. Gensim 4.4: Word2Vec y KeyedVectors. Fuentes de datos: Salesforce/WikiText-103 raw y fancyzhx/AG News en Hugging Face; WordSim-353, SimLex-999 y analogías en los recursos de gensim."
+    ],
+    [
+      "p",
+      "Entregables: notebook comentado, PDF, Word editable, código y dependencias, métricas, figuras, predicciones y mejores vectores SGNS .kv en la release v1.0-lab7."
+    ],
+    [
+      "p",
+      "Repositorio de la entrega: https://github.com/iancumes/Lab7DeepLearning"
+    ]
+  ]
+]

@@ -1,0 +1,12 @@
+{
+  "batch_size": 4096,
+  "steps": 2500,
+  "pairs": 10212770,
+  "seconds": 18.598992855000233,
+  "mean_loss": 2.6010344191548533,
+  "last_loss": 2.256631851196289,
+  "max_loss": 4.158883094787598,
+  "finite": true,
+  "corpus_sha256": "5ea8d386683c46b715ba1cf87cfd22452a0e539873459cc68b824bbc13b0eb43",
+  "note": "Prueba de rendimiento; excluida de selección y resultados de epochs."
+}

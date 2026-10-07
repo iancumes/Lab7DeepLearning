@@ -1,0 +1,84 @@
+{
+  "key": "sgns_finetune_100",
+  "name": "sgns_finetune",
+  "initialization": "sgns",
+  "freeze": false,
+  "fraction": 1.0,
+  "train_examples": 108000,
+  "dimension": 100,
+  "vocabulary_size": 43702,
+  "best_epoch": 4,
+  "validation": {
+    "accuracy": 0.9264166666666667,
+    "precision_macro": 0.9266354586000816,
+    "recall_macro": 0.9264166666666667,
+    "f1_macro": 0.9263128712647879
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.6532388044110051,
+      "validation_loss": 0.30745222854614257,
+      "seconds": 0.7878691179998896,
+      "accuracy": 0.9045,
+      "precision_macro": 0.9044064596024026,
+      "recall_macro": 0.9045000000000001,
+      "f1_macro": 0.9043018405464395
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.26962957769853096,
+      "validation_loss": 0.25427531750996907,
+      "seconds": 0.7799768390000281,
+      "accuracy": 0.9203333333333333,
+      "precision_macro": 0.920437350513268,
+      "recall_macro": 0.9203333333333333,
+      "f1_macro": 0.9200831797750666
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.21597105110133136,
+      "validation_loss": 0.23415730921427408,
+      "seconds": 0.783125089999885,
+      "accuracy": 0.9240833333333334,
+      "precision_macro": 0.9240937951990965,
+      "recall_macro": 0.9240833333333334,
+      "f1_macro": 0.9239373335150864
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.17919056483551307,
+      "validation_loss": 0.22781764094034831,
+      "seconds": 0.7641124359997775,
+      "accuracy": 0.9264166666666667,
+      "precision_macro": 0.9266354586000816,
+      "recall_macro": 0.9264166666666667,
+      "f1_macro": 0.9263128712647879
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.15270427103395814,
+      "validation_loss": 0.22787982781728108,
+      "seconds": 0.8340063760001613,
+      "accuracy": 0.9238333333333333,
+      "precision_macro": 0.9239053893132039,
+      "recall_macro": 0.9238333333333333,
+      "f1_macro": 0.9237186554882142
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.13058597261817367,
+      "validation_loss": 0.23472671699523925,
+      "seconds": 0.911668579000434,
+      "accuracy": 0.9233333333333333,
+      "precision_macro": 0.9231973181213389,
+      "recall_macro": 0.9233333333333333,
+      "f1_macro": 0.9232190464955974
+    }
+  ],
+  "training_seconds": 5.156821087000026,
+  "total_parameters": 4383644,
+  "trainable_parameters": 4383644,
+  "checkpoint": "classifiers/sgns_finetune_100.pt",
+  "checkpoint_sha256": "c7ffa493a49d4647d5ad4b45d76ac841faa6bb971f5fbc8db65072a49c27d62b"
+}

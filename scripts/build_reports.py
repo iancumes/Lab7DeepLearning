@@ -35,6 +35,7 @@ def build_content():
     test=read('evaluations/classification_test.json'); hw=read('hardware.json'); metas=read('corpus_configurations.json')
     full=[r for r in test if r['fraction']==1]; selected_full={r['initialization']:r for r in selected['selected'] if r['fraction']==1}
     winner=max(full,key=lambda r:r['metrics']['f1_macro'])
+    runner_up=sorted(full,key=lambda r:r['metrics']['f1_macro'],reverse=True)[1]
     total_seconds=sum(r['training_seconds'] for rows in runs.values() for r in rows)
     pages=[]
     pages.append([
@@ -50,17 +51,17 @@ def build_content():
     exp=[]
     for c in cfgs:
         chosen=max(runs[c['name']],key=lambda r:(r['wordsim']['spearman'] or -2,r['analogies']['total']['accuracy'] or 0))
-        exp.append([c['name'],f"{c['dim']}/{c['window']}/{c['negatives']}",f"{c['fraction']*100:g}",chosen['epoch'],rho(chosen['wordsim']['spearman']),percent(chosen['analogies']['total']['accuracy']),mins(sum(r['training_seconds'] for r in runs[c['name']]))])
+        exp.append([c['name'],f"{c['dim']}/{c['window']}/{c['negatives']}",number(chosen['corpus_tokens']),chosen['epoch'],rho(chosen['wordsim']['spearman']),percent(chosen['analogies']['total']['accuracy']),mins(sum(r['training_seconds'] for r in runs[c['name']]))])
     base=runs['base100'][0]; meta=metas[0]
     pages.append([
       h('Entrenamiento y selección'),
       p('El SGNS propio usa dos tablas nn.Embedding dispersas. Minimiza −log σ(v·u) − Σ log σ(−v·n), preservando los vectores de entrada. Genera pares por bloques, sin cruzar contextos; rechaza negativos iguales al contexto positivo. La suma del minibatch guía SGD y la pérdida publicada se promedia por par.'),
-      p('Cada configuración tiene tres epochs, minibatch de 4096 pares, min_count=5, subsampling t=10⁻⁴ y SGD con learning rate lineal 0.025→0.0001. La ventana es fija. Se guardan checkpoint, pérdida, analogías semánticas/sintácticas, WordSim, vecinos de seis palabras, tiempos y memoria por epoch. La selección usa WordSim sin redondear sobre pares comunes y accuracy de analogías como desempate; SimLex queda reservado.'),
-      table(['Configuración','d/w/k','Corpus %','Epoch','ρ WordSim','Acc analogías','Min total'],exp),
+      p('Cada configuración tiene tres epochs, minibatch de 4096 pares, min_count=5, subsampling t=10^-4 y SGD con learning rate lineal 0.025→0.0001. La ventana es fija. Se guardan checkpoint, pérdida, analogías semánticas/sintácticas, WordSim, vecinos de seis palabras, tiempos y memoria por epoch. La selección usa WordSim sin redondear sobre pares comunes y accuracy de analogías como desempate; SimLex queda reservado.'),
+      table(['Configuración','d/w/k','Tokens corpus','Epoch','ρ WordSim','Acc analogías','Min total'],exp),
       p(f"Selección: {best['config']['name']}, epoch {best['epoch']}, ρ WordSim={rho(best['wordsim']['spearman'])}. En la base, el subsampling redujo {number(meta['pairs_before_subsampling'])} pares a {number(base['pairs'])} en la primera epoch; conservó {number(base['retained_tokens'])} tokens elegibles. La pérdida media base pasó de {runs['base100'][0]['loss']:.3f} a {runs['base100'][-1]['loss']:.3f}."),
       p('El descarte observado de the/of/and en la primera epoch fue '+', '.join(f"{w}: {percent(s['observed_discard_fraction'])}" for w,s in base['subsampling'].items())+'.'),
       p(f"Hardware medido: {hw['gpu'] or hw['processor']}, PyTorch {hw['torch']}, Python {hw['python']}; tiempo SGNS acumulado de las siete configuraciones {mins(total_seconds)} minutos. La memoria GPU máxima asignada a tensores durante entrenamiento fue {max(r['gpu_peak_bytes'] or 0 for rows in runs.values() for r in rows)/1024**2:.1f} MiB. Estos tiempos excluyen descarga y evaluación."),
-      p('Gensim usa el mismo corpus/vocabulario y parámetros equivalentes, cuatro workers y ventana fija. Sus actualizaciones Cython asíncronas difieren de los minibatches; descarta colisiones de negativos en vez de redibujarlas. Se registra cada epoch, sin exigir vectores numéricamente iguales.'),
+      p(f"Gensim se entrenó en CPU {hw['cpu_model']} con cuatro workers, el mismo corpus/vocabulario y parámetros equivalentes. Sus actualizaciones Cython asíncronas difieren de los minibatches; descarta colisiones de negativos en vez de redibujarlas. Se registra cada epoch, sin exigir vectores numéricamente iguales."),
       p('GloVe es exactamente glove-wiki-gigaword-100: 400000 palabras, 100d y 6 mil millones de tokens. El artículo informa dos Intel Xeon E5-2658 de 2.1 GHz, 85 min de coocurrencias en un hilo y 14 min por iteración de 300d en 32 cores. Son mediciones publicadas de otra dimensión; aquí no se entrenó GloVe.')])
     examples=[]
     for name,rows in personal.items():
@@ -84,13 +85,13 @@ def build_content():
         categoryrows.append([label]+values)
     pages.append([
       h('Aritmética vectorial y geometría'),
-      p('analogia(a,b,c,k) implementa 3CosAdd con vectores individuales normalizados y búsqueda por coseno de b−a+c. Se excluyen las consultas a/b/c y se verificó coincidencia de top-5 y similitudes con gensim. 3CosMul usa el cociente de productos de cosenos desplazados a [0,1], con epsilon=10⁻⁶. Las consultas excluidas impiden respuestas triviales.'),
+      p('analogia(a,b,c,k) implementa 3CosAdd con vectores individuales normalizados y búsqueda por coseno de b−a+c. Se excluyen las consultas a/b/c y se verificó coincidencia de top-5 y similitudes con gensim. 3CosMul usa el cociente de productos de cosenos desplazados a [0,1], con epsilon=10^-6. Las consultas excluidas impiden respuestas triviales.'),
       p(f"Los tres embeddings se evalúan sobre las mismas {number(covered['evaluated'])} preguntas cubiertas de {number(covered['total'])}, en 14 categorías, con exactamente 30000 candidatos compartidos: cobertura {percent(covered['coverage'])}. Accuracy usa solo preguntas cubiertas; la cobertura debe acompañarla. Los resultados por categoría están en el notebook."),
-      table(['Modelo','Semántica Add','Sintáctica Add','Total Add','Total Mul','Paralelismo'],[[name,percent(r['three_cos_add']['semantic']['accuracy']),percent(r['three_cos_add']['syntactic']['accuracy']),percent(r['three_cos_add']['total']['accuracy']),percent(r['three_cos_mul']['total']['accuracy']),rho(parallel[name]['mean_cosine'])] for name,r in intrinsic.items()]),
+      table(['Modelo','Sem. Add/Mul %','Sint. Add/Mul %','Total Add','Total Mul','Paralelismo'],[[name,'/'.join(f"{100*r[m]['semantic']['accuracy']:.2f}" for m in ['three_cos_add','three_cos_mul']),'/'.join(f"{100*r[m]['syntactic']['accuracy']:.2f}" for m in ['three_cos_add','three_cos_mul']),percent(r['three_cos_add']['total']['accuracy']),percent(r['three_cos_mul']['total']['accuracy']),rho(parallel[name]['mean_cosine'])] for name,r in intrinsic.items()]),
       p('Se probaron 18 analogías personales de seis tipos, con top-5, similitudes, rango correcto, OOV y búsqueda con/sin exclusión. Ejemplos observados:'),
       table(['Modelo','Resultado','Consulta','Esperado','Top 1','Rango'],examples),
       table(['Categoría','SGNS Add/Mul %','Gensim Add/Mul %','GloVe Add/Mul %'],categoryrows),
-      p('El coseno entre b−a y d−c mide paralelismo de relaciones equivalentes; un valor alto no garantiza acertar el ranking. El notebook incluye t-SNE de aproximadamente 500 palabras por modelo, con grupos definidos previamente, coseno, perplexity 30, 1500 iteraciones y semilla 23236. Sus ejes y distancias globales no son medidas semánticas.')])
+      p(f"En SGNS, woman−man+king coloca queen en rango {personal['sgns'][0]['rank']} (coseno {personal['sgns'][0]['cosine']:.3f}); sin exclusión, gana {personal['sgns'][0]['without_exclusion'][0][0]}. El ≈ no es una igualdad. El coseno entre b−a y d−c mide paralelismo sin garantizar el ranking. El notebook incluye t-SNE de 500 palabras por modelo: temas predefinidos, coseno, perplexity 30, 1500 iteraciones y semilla 23236; sus ejes y distancias globales no son medidas semánticas.")])
     fractionrows=[]
     for f in [.01,.1,.5,1.0]:
         values={r['initialization']:r for r in test if r['fraction']==f}
@@ -111,12 +112,12 @@ def build_content():
       table(['Fracción','TF-IDF','Aleatorio','SGNS','Gensim','GloVe'],fractionrows),
       p('F1 macro en test por fracción. Cada columna usa la variante elegida exclusivamente con validación para esa fracción; no se cambió la selección después de ver test.'),
       table(['Modelo al 100%','Acc','P macro','R macro','F1 macro','Par entrenables','Min'],fullmetrics),
-      p(f"El mayor F1 al 100% fue {winner['name']} ({percent(winner['metrics']['f1_macro'])}). La matriz con más errores fue {confusion['name']}; su mayor confusión dirigida fue {label[i]}→{label[j]} ({count} ejemplos). Las veinte matrices y curvas completas están guardadas en el notebook y archivos JSON/CSV."),
+      p(f"El mayor F1 al 100% fue {winner['name']} ({percent(winner['metrics']['f1_macro'])}), apenas {100*(winner['metrics']['f1_macro']-runner_up['metrics']['f1_macro']):.4f} puntos sobre {runner_up['name']}; no se estima significancia. La matriz con más errores fue {confusion['name']}; su mayor confusión dirigida fue {label[i]}→{label[j]} ({count} ejemplos). Las veinte matrices y curvas están guardadas en el notebook y archivos JSON/CSV."),
       p('Los embeddings congelados exigen menos parámetros entrenables; fine-tuning adapta dominio y OOV, pero requiere etiquetas. La referencia TF-IDF puede competir bien en noticias por su señal léxica y bigramas. La ventaja observada con poco entrenamiento se interpreta en la siguiente página, sin atribuir causalidad a una única semilla.')])
     time_sgns=sum(r['training_seconds'] for r in runs[best['config']['name']]); time_gen=sum(r['training_seconds'] for r in read('runs/gensim.json'))
     compare=[]
     for name,r in intrinsic.items():
-        compare.append([name,r['dimension'],number(r['vocabulary_size']),rho(r['wordsim']['spearman']),percent(r['wordsim']['coverage']),rho(r['simlex']['spearman']),percent(r['simlex']['coverage']),percent(next(t for t in full if t['initialization']==name)['metrics']['f1_macro']),mins(time_sgns if name=='sgns' else time_gen) if name!='glove' else 'Preentrenado'])
+        compare.append([name,r['dimension'],number(r['vocabulary_size']),rho(r['wordsim']['spearman']),percent(r['wordsim']['coverage']),rho(r['simlex']['spearman']),percent(r['simlex']['coverage']),percent(next(t for t in full if t['initialization']==name)['metrics']['f1_macro']),mins(time_sgns if name=='sgns' else time_gen) if name!='glove' else 'Externo'])
     one={r['initialization']:r for r in test if r['fraction']==.01}
     gain=one['glove']['metrics']['f1_macro']-one['random']['metrics']['f1_macro']
     intrinsic_winner=max(intrinsic,key=lambda m:intrinsic[m]['simlex']['spearman'] or -2)
@@ -126,8 +127,8 @@ def build_content():
       p('WS=WordSim-353; SL=SimLex-999. Las correlaciones finales usan pares cubiertos por cada vocabulario, por lo que se muestra cobertura. SimLex se evaluó después de cerrar la selección de embeddings. Los tiempos de SGNS/gensim suman tres epochs de la configuración comparada, sin descarga ni evaluación.'),
       p('OOV de tokens en test AG News: '+', '.join(f"{name} {percent(read('news_split.json')['oov'][name]['test']['unknown_fraction'])}" for name in ['sgns','gensim','glove'])+'. SGNS y gensim usan '+number(best['corpus_tokens'])+' tokens normalizados; GloVe usa 6000000000. El hardware medido y el publicado se distinguen en la página 2.'),
       p(f"La configuración SGNS elegida fue {best['config']['name']} en epoch {best['epoch']}. {intrinsic_winner} obtuvo la mayor correlación SimLex observada. La tabla muestra que calidad intrínseca y F1 de clasificación deben examinarse por separado: son tareas con objetivos y distribuciones distintos."),
-      p(f"Con 1% de etiquetas, GloVe obtuvo F1 {percent(one['glove']['metrics']['f1_macro'])} frente a {percent(one['random']['metrics']['f1_macro'])} del embedding aleatorio: diferencia {gain*100:+.2f} puntos porcentuales. Esta diferencia cuantifica la utilidad observada de la inicialización preentrenada con pocas etiquetas; no demuestra superioridad universal."),
-      p('Subsampling redujo pares frecuentes redundantes. Dimensión, ventana y negativos cambian capacidad y costo; su efecto observado por configuración se analiza en el notebook. SGNS/gensim difieren en actualización; GloVe dispone de muchos más tokens. Esta comparación no aísla el efecto de arquitectura.'),
+      p(f"Con 1% de etiquetas, GloVe obtuvo F1 {percent(one['glove']['metrics']['f1_macro'])} frente a {percent(one['random']['metrics']['f1_macro'])} del embedding aleatorio: {gain*100:+.2f} puntos. TF-IDF fue superior a ambos ({percent(one['tfidf']['metrics']['f1_macro'])}). Validación eligió fine-tuning para los tres preentrenados en todas las fracciones; el beneficio depende de datos y tarea."),
+      p(f"A epoch 3, 50/300d no superaron la base en WordSim; ventana 2 obtuvo {rho(runs['window2'][-1]['wordsim']['spearman'])}. Diez negativos casi empataron ({rho(runs['negative10'][-1]['wordsim']['spearman'])}) con más costo. Aumentar corpus 25→100% elevó accuracy de {percent(runs['corpus25'][-1]['analogies']['total']['accuracy'])} a {percent(runs['base100'][-1]['analogies']['total']['accuracy'])}. GloVe dispone de muchos más tokens; no se aísla causalmente el efecto del método."),
       p('Limitaciones: tres epochs, una semilla, sin intervalos de confianza; embeddings estáticos y promedio sin orden ni negación; tokenización y cobertura diferentes. Futuro: varias semillas, más entrenamiento y modelos sensibles al contexto.'),
       p('Verificación: pérdida y gradientes contra entropía cruzada binaria, fronteras de contexto, exclusión de consultas y coincidencia con gensim; corpus mínimo y hashes, subconjuntos anidados, selección bloqueada y una evaluación test por modelo. El notebook se ejecutó desde kernel limpio. Los checkpoints y registros reales se recuperaron de Colab.'),
       h('Referencias'),

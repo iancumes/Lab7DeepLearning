@@ -1,0 +1,822 @@
+[
+  {
+    "key": "tfidf_001",
+    "initialization": "tfidf",
+    "name": "tfidf",
+    "fraction": 0.01,
+    "checkpoint_sha256": "6584ed1c2385b8636e0f25d4aeb0a42f770d0cbcd288d942f45279bcc223b78a",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.8201315789473684,
+      "precision_macro": 0.8191586265041702,
+      "recall_macro": 0.8201315789473684,
+      "f1_macro": 0.8193904049987826
+    },
+    "confusion_matrix": [
+      [
+        1576,
+        109,
+        113,
+        102
+      ],
+      [
+        75,
+        1738,
+        43,
+        44
+      ],
+      [
+        135,
+        68,
+        1430,
+        267
+      ],
+      [
+        116,
+        77,
+        218,
+        1489
+      ]
+    ],
+    "seconds": 0.6542773030000717
+  },
+  {
+    "key": "random_001",
+    "initialization": "random",
+    "name": "random",
+    "fraction": 0.01,
+    "checkpoint_sha256": "79f6f1cd19f3217e3499d444821c2b348900c17200e7975d3e66abab9771abc9",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.4630263157894737,
+      "precision_macro": 0.2383562863427645,
+      "recall_macro": 0.46302631578947373,
+      "f1_macro": 0.31202872320697095
+    },
+    "confusion_matrix": [
+      [
+        0,
+        1491,
+        0,
+        409
+      ],
+      [
+        0,
+        1841,
+        0,
+        59
+      ],
+      [
+        0,
+        981,
+        0,
+        919
+      ],
+      [
+        0,
+        222,
+        0,
+        1678
+      ]
+    ],
+    "seconds": 0.08731615199985754
+  },
+  {
+    "key": "sgns_finetune_001",
+    "initialization": "sgns",
+    "name": "sgns_finetune",
+    "fraction": 0.01,
+    "checkpoint_sha256": "e4fa072d65a2fa0f0ad642922e510eea7adddd670a3f77ea650ff07803656a2a",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.7228947368421053,
+      "precision_macro": 0.7710139684831895,
+      "recall_macro": 0.7228947368421053,
+      "f1_macro": 0.7189007933237316
+    },
+    "confusion_matrix": [
+      [
+        1312,
+        139,
+        84,
+        365
+      ],
+      [
+        67,
+        1624,
+        11,
+        198
+      ],
+      [
+        116,
+        76,
+        843,
+        865
+      ],
+      [
+        27,
+        81,
+        77,
+        1715
+      ]
+    ],
+    "seconds": 0.08323198400012188
+  },
+  {
+    "key": "gensim_finetune_001",
+    "initialization": "gensim",
+    "name": "gensim_finetune",
+    "fraction": 0.01,
+    "checkpoint_sha256": "619aa61d74a780dee425a2fd92ea5d5eac19d4fb4a2d47d4400dd8c221ca2425",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.8072368421052631,
+      "precision_macro": 0.8137492638330645,
+      "recall_macro": 0.8072368421052633,
+      "f1_macro": 0.8067866340416188
+    },
+    "confusion_matrix": [
+      [
+        1562,
+        103,
+        191,
+        44
+      ],
+      [
+        77,
+        1715,
+        81,
+        27
+      ],
+      [
+        134,
+        43,
+        1568,
+        155
+      ],
+      [
+        135,
+        78,
+        397,
+        1290
+      ]
+    ],
+    "seconds": 0.08380977800015899
+  },
+  {
+    "key": "glove_finetune_001",
+    "initialization": "glove",
+    "name": "glove_finetune",
+    "fraction": 0.01,
+    "checkpoint_sha256": "8fc9f21d4fa8a00fe02bdbd35026c712cfdc7f7312d7fb950aaa01c918fa440a",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.6684210526315789,
+      "precision_macro": 0.6925531613222291,
+      "recall_macro": 0.6684210526315789,
+      "f1_macro": 0.6673447281700003
+    },
+    "confusion_matrix": [
+      [
+        1634,
+        125,
+        105,
+        36
+      ],
+      [
+        600,
+        1145,
+        129,
+        26
+      ],
+      [
+        365,
+        55,
+        1185,
+        295
+      ],
+      [
+        277,
+        144,
+        363,
+        1116
+      ]
+    ],
+    "seconds": 0.08544756900028005
+  },
+  {
+    "key": "tfidf_010",
+    "initialization": "tfidf",
+    "name": "tfidf",
+    "fraction": 0.1,
+    "checkpoint_sha256": "b14268dd3319b25a2a6a989a2a9be20e08f049b3f860b86d37cd19833fe68b98",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.8931578947368422,
+      "precision_macro": 0.892681195843719,
+      "recall_macro": 0.8931578947368422,
+      "f1_macro": 0.8927666333051392
+    },
+    "confusion_matrix": [
+      [
+        1682,
+        75,
+        83,
+        60
+      ],
+      [
+        25,
+        1850,
+        13,
+        12
+      ],
+      [
+        73,
+        26,
+        1619,
+        182
+      ],
+      [
+        73,
+        31,
+        159,
+        1637
+      ]
+    ],
+    "seconds": 0.749078572000144
+  },
+  {
+    "key": "random_010",
+    "initialization": "random",
+    "name": "random",
+    "fraction": 0.1,
+    "checkpoint_sha256": "b9fad928a63f6e854a1ec919ed802393e9fb1e8253213a782e28c08db43fa8e6",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.8876315789473684,
+      "precision_macro": 0.8874622292208469,
+      "recall_macro": 0.8876315789473685,
+      "f1_macro": 0.8874811642411078
+    },
+    "confusion_matrix": [
+      [
+        1701,
+        64,
+        87,
+        48
+      ],
+      [
+        47,
+        1816,
+        16,
+        21
+      ],
+      [
+        97,
+        12,
+        1581,
+        210
+      ],
+      [
+        76,
+        16,
+        160,
+        1648
+      ]
+    ],
+    "seconds": 0.09804616700012048
+  },
+  {
+    "key": "sgns_finetune_010",
+    "initialization": "sgns",
+    "name": "sgns_finetune",
+    "fraction": 0.1,
+    "checkpoint_sha256": "c06dfb7f605aac94c521fedb30f86d2c74f02b0a546f5d89cc31447a8e91d5eb",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.8921052631578947,
+      "precision_macro": 0.8918905106359297,
+      "recall_macro": 0.8921052631578948,
+      "f1_macro": 0.8919098175419465
+    },
+    "confusion_matrix": [
+      [
+        1697,
+        65,
+        80,
+        58
+      ],
+      [
+        31,
+        1835,
+        15,
+        19
+      ],
+      [
+        82,
+        17,
+        1593,
+        208
+      ],
+      [
+        68,
+        16,
+        161,
+        1655
+      ]
+    ],
+    "seconds": 0.09793296799989548
+  },
+  {
+    "key": "gensim_finetune_010",
+    "initialization": "gensim",
+    "name": "gensim_finetune",
+    "fraction": 0.1,
+    "checkpoint_sha256": "bde40d55556b90c9ae164526ee2c17a70ecd47d77314a4fe2d1a0a061cd7bd7f",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.8905263157894737,
+      "precision_macro": 0.8904165229936969,
+      "recall_macro": 0.8905263157894736,
+      "f1_macro": 0.8903114088664286
+    },
+    "confusion_matrix": [
+      [
+        1695,
+        66,
+        76,
+        63
+      ],
+      [
+        36,
+        1828,
+        16,
+        20
+      ],
+      [
+        87,
+        18,
+        1582,
+        213
+      ],
+      [
+        74,
+        16,
+        147,
+        1663
+      ]
+    ],
+    "seconds": 0.09894779800015385
+  },
+  {
+    "key": "glove_finetune_010",
+    "initialization": "glove",
+    "name": "glove_finetune",
+    "fraction": 0.1,
+    "checkpoint_sha256": "1162299305cdebaa112e286f00b57150e443e01cdd1463e4ba4ccf4d8792f088",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.8925,
+      "precision_macro": 0.8923299382541936,
+      "recall_macro": 0.8925000000000001,
+      "f1_macro": 0.8922830035153777
+    },
+    "confusion_matrix": [
+      [
+        1697,
+        60,
+        85,
+        58
+      ],
+      [
+        33,
+        1829,
+        16,
+        22
+      ],
+      [
+        94,
+        19,
+        1585,
+        202
+      ],
+      [
+        67,
+        18,
+        143,
+        1672
+      ]
+    ],
+    "seconds": 0.10162656400007108
+  },
+  {
+    "key": "tfidf_050",
+    "initialization": "tfidf",
+    "name": "tfidf",
+    "fraction": 0.5,
+    "checkpoint_sha256": "ebb4bf9908a912ffeec1e3eb39eec32d197eac610df7e17b1ae4ea4afa8038b4",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.9138157894736842,
+      "precision_macro": 0.9138278027139815,
+      "recall_macro": 0.9138157894736842,
+      "f1_macro": 0.9136293874920463
+    },
+    "confusion_matrix": [
+      [
+        1707,
+        58,
+        83,
+        52
+      ],
+      [
+        17,
+        1859,
+        13,
+        11
+      ],
+      [
+        50,
+        21,
+        1664,
+        165
+      ],
+      [
+        52,
+        23,
+        110,
+        1715
+      ]
+    ],
+    "seconds": 0.9578411970001071
+  },
+  {
+    "key": "random_050",
+    "initialization": "random",
+    "name": "random",
+    "fraction": 0.5,
+    "checkpoint_sha256": "c1e46e43cd87e2c18debea38abd2aec7783a8a4255da714095da5f20c783dbd8",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.9163157894736842,
+      "precision_macro": 0.916181510384409,
+      "recall_macro": 0.9163157894736842,
+      "f1_macro": 0.9161617884687268
+    },
+    "confusion_matrix": [
+      [
+        1727,
+        49,
+        75,
+        49
+      ],
+      [
+        24,
+        1860,
+        12,
+        4
+      ],
+      [
+        56,
+        15,
+        1661,
+        168
+      ],
+      [
+        56,
+        13,
+        115,
+        1716
+      ]
+    ],
+    "seconds": 0.20201524300000528
+  },
+  {
+    "key": "sgns_finetune_050",
+    "initialization": "sgns",
+    "name": "sgns_finetune",
+    "fraction": 0.5,
+    "checkpoint_sha256": "8525ef9a3e70e4e0aa99e1abf74281472dd7e95df39acadad17b02081f71a1e9",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.9153947368421053,
+      "precision_macro": 0.9152300622773779,
+      "recall_macro": 0.9153947368421053,
+      "f1_macro": 0.9152680729059651
+    },
+    "confusion_matrix": [
+      [
+        1727,
+        53,
+        76,
+        44
+      ],
+      [
+        27,
+        1854,
+        11,
+        8
+      ],
+      [
+        63,
+        10,
+        1667,
+        160
+      ],
+      [
+        54,
+        14,
+        123,
+        1709
+      ]
+    ],
+    "seconds": 0.1823872830000255
+  },
+  {
+    "key": "gensim_finetune_050",
+    "initialization": "gensim",
+    "name": "gensim_finetune",
+    "fraction": 0.5,
+    "checkpoint_sha256": "d71eb1a5be504f0766c7286a74675e45f3080e477c069733798cf4885454396a",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.915921052631579,
+      "precision_macro": 0.9158175689520873,
+      "recall_macro": 0.915921052631579,
+      "f1_macro": 0.91580102964758
+    },
+    "confusion_matrix": [
+      [
+        1727,
+        53,
+        75,
+        45
+      ],
+      [
+        29,
+        1851,
+        11,
+        9
+      ],
+      [
+        60,
+        11,
+        1664,
+        165
+      ],
+      [
+        57,
+        12,
+        112,
+        1719
+      ]
+    ],
+    "seconds": 0.18250044499973228
+  },
+  {
+    "key": "glove_finetune_050",
+    "initialization": "glove",
+    "name": "glove_finetune",
+    "fraction": 0.5,
+    "checkpoint_sha256": "33bbd6fe9da30b81abad85b14adf34adf807901ac159f28a4c9cd15e5e38080f",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.9152631578947369,
+      "precision_macro": 0.9153305539845298,
+      "recall_macro": 0.9152631578947368,
+      "f1_macro": 0.9152277911096567
+    },
+    "confusion_matrix": [
+      [
+        1713,
+        54,
+        87,
+        46
+      ],
+      [
+        18,
+        1853,
+        19,
+        10
+      ],
+      [
+        59,
+        7,
+        1687,
+        147
+      ],
+      [
+        55,
+        12,
+        130,
+        1703
+      ]
+    ],
+    "seconds": 0.19353777100013758
+  },
+  {
+    "key": "tfidf_100",
+    "initialization": "tfidf",
+    "name": "tfidf",
+    "fraction": 1.0,
+    "checkpoint_sha256": "33ef9c5ae4eaa42450c7f4e77a26d653afd59bce430b53dc76904f227b1e8b6e",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.9163157894736842,
+      "precision_macro": 0.9161777198491414,
+      "recall_macro": 0.9163157894736843,
+      "f1_macro": 0.9160989843126918
+    },
+    "confusion_matrix": [
+      [
+        1721,
+        56,
+        73,
+        50
+      ],
+      [
+        12,
+        1865,
+        14,
+        9
+      ],
+      [
+        51,
+        25,
+        1669,
+        155
+      ],
+      [
+        56,
+        19,
+        116,
+        1709
+      ]
+    ],
+    "seconds": 1.4523517020002146
+  },
+  {
+    "key": "random_100",
+    "initialization": "random",
+    "name": "random",
+    "fraction": 1.0,
+    "checkpoint_sha256": "d4eae24c78d4645138cded2d7b498b07e3e88cc791204d62c98d08e94d0de470",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.9210526315789473,
+      "precision_macro": 0.9211312982744916,
+      "recall_macro": 0.9210526315789473,
+      "f1_macro": 0.9209909973408446
+    },
+    "confusion_matrix": [
+      [
+        1718,
+        47,
+        74,
+        61
+      ],
+      [
+        23,
+        1857,
+        11,
+        9
+      ],
+      [
+        54,
+        11,
+        1693,
+        142
+      ],
+      [
+        46,
+        12,
+        110,
+        1732
+      ]
+    ],
+    "seconds": 0.1308983779999835
+  },
+  {
+    "key": "sgns_finetune_100",
+    "initialization": "sgns",
+    "name": "sgns_finetune",
+    "fraction": 1.0,
+    "checkpoint_sha256": "c7ffa493a49d4647d5ad4b45d76ac841faa6bb971f5fbc8db65072a49c27d62b",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.9210526315789473,
+      "precision_macro": 0.9212262322658782,
+      "recall_macro": 0.9210526315789473,
+      "f1_macro": 0.9210111654114854
+    },
+    "confusion_matrix": [
+      [
+        1716,
+        51,
+        80,
+        53
+      ],
+      [
+        19,
+        1860,
+        11,
+        10
+      ],
+      [
+        51,
+        9,
+        1695,
+        145
+      ],
+      [
+        40,
+        11,
+        120,
+        1729
+      ]
+    ],
+    "seconds": 0.12499981800010573
+  },
+  {
+    "key": "gensim_finetune_100",
+    "initialization": "gensim",
+    "name": "gensim_finetune",
+    "fraction": 1.0,
+    "checkpoint_sha256": "2437c00c4b2865cf0b0cf97d1dd0059f1dd0b2dd9023488c9ed3af3125deb101",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.9203947368421053,
+      "precision_macro": 0.9206247464242668,
+      "recall_macro": 0.9203947368421053,
+      "f1_macro": 0.9203478400182971
+    },
+    "confusion_matrix": [
+      [
+        1717,
+        50,
+        78,
+        55
+      ],
+      [
+        16,
+        1861,
+        14,
+        9
+      ],
+      [
+        51,
+        9,
+        1681,
+        159
+      ],
+      [
+        42,
+        10,
+        112,
+        1736
+      ]
+    ],
+    "seconds": 0.12430496899969512
+  },
+  {
+    "key": "glove_finetune_100",
+    "initialization": "glove",
+    "name": "glove_finetune",
+    "fraction": 1.0,
+    "checkpoint_sha256": "20e24aba0c9300776f6bb22127d8113116025e624bf92d484954a138fbaa0d1e",
+    "test_evaluations": 1,
+    "metrics": {
+      "accuracy": 0.920921052631579,
+      "precision_macro": 0.9208998723027186,
+      "recall_macro": 0.920921052631579,
+      "f1_macro": 0.9208254080594978
+    },
+    "confusion_matrix": [
+      [
+        1732,
+        47,
+        68,
+        53
+      ],
+      [
+        20,
+        1859,
+        11,
+        10
+      ],
+      [
+        64,
+        10,
+        1676,
+        150
+      ],
+      [
+        44,
+        11,
+        113,
+        1732
+      ]
+    ],
+    "seconds": 0.12179963800008409
+  }
+]

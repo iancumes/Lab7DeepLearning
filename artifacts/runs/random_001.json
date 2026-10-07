@@ -1,0 +1,74 @@
+{
+  "key": "random_001",
+  "name": "random",
+  "initialization": "random",
+  "freeze": false,
+  "fraction": 0.01,
+  "train_examples": 1080,
+  "dimension": 100,
+  "vocabulary_size": 4132,
+  "best_epoch": 3,
+  "validation": {
+    "accuracy": 0.4633333333333333,
+    "precision_macro": 0.23906513260262982,
+    "recall_macro": 0.4633333333333334,
+    "f1_macro": 0.31252613436153426
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.3875101133629129,
+      "validation_loss": 1.3864956970214843,
+      "seconds": 0.8563403450002625,
+      "accuracy": 0.25,
+      "precision_macro": 0.0625,
+      "recall_macro": 0.25,
+      "f1_macro": 0.1
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.3862063734619705,
+      "validation_loss": 1.385232770284017,
+      "seconds": 0.03270976100020562,
+      "accuracy": 0.2509166666666667,
+      "precision_macro": 0.2917292292292292,
+      "recall_macro": 0.2509166666666667,
+      "f1_macro": 0.10190609326770846
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.3838752101968836,
+      "validation_loss": 1.383727658589681,
+      "seconds": 0.03957729700005075,
+      "accuracy": 0.4633333333333333,
+      "precision_macro": 0.23906513260262982,
+      "recall_macro": 0.4633333333333334,
+      "f1_macro": 0.31252613436153426
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.3811552798306501,
+      "validation_loss": 1.381945551554362,
+      "seconds": 0.03125422300036007,
+      "accuracy": 0.26308333333333334,
+      "precision_macro": 0.5452914866810797,
+      "recall_macro": 0.26308333333333334,
+      "f1_macro": 0.12623422436800907
+    },
+    {
+      "epoch": 5,
+      "train_loss": 1.3785762310028076,
+      "validation_loss": 1.3797988891601562,
+      "seconds": 0.03331579999985479,
+      "accuracy": 0.26258333333333334,
+      "precision_macro": 0.5565151345468538,
+      "recall_macro": 0.26258333333333334,
+      "f1_macro": 0.12509396067631645
+    }
+  ],
+  "training_seconds": 1.0169617050000852,
+  "total_parameters": 426644,
+  "trainable_parameters": 426644,
+  "checkpoint": "classifiers/random_001.pt",
+  "checkpoint_sha256": "79f6f1cd19f3217e3499d444821c2b348900c17200e7975d3e66abab9771abc9"
+}

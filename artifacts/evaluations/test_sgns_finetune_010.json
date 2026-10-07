@@ -1,0 +1,41 @@
+{
+  "key": "sgns_finetune_010",
+  "initialization": "sgns",
+  "name": "sgns_finetune",
+  "fraction": 0.1,
+  "checkpoint_sha256": "c06dfb7f605aac94c521fedb30f86d2c74f02b0a546f5d89cc31447a8e91d5eb",
+  "test_evaluations": 1,
+  "metrics": {
+    "accuracy": 0.8921052631578947,
+    "precision_macro": 0.8918905106359297,
+    "recall_macro": 0.8921052631578948,
+    "f1_macro": 0.8919098175419465
+  },
+  "confusion_matrix": [
+    [
+      1697,
+      65,
+      80,
+      58
+    ],
+    [
+      31,
+      1835,
+      15,
+      19
+    ],
+    [
+      82,
+      17,
+      1593,
+      208
+    ],
+    [
+      68,
+      16,
+      161,
+      1655
+    ]
+  ],
+  "seconds": 0.09793296799989548
+}

@@ -1,0 +1,9 @@
+{
+  "model": "glove-wiki-gigaword-100",
+  "tokens": 6000000000,
+  "vocabulary_size": 400000,
+  "dimension": 100,
+  "download_load_seconds": 51.19743250299996,
+  "source": "https://nlp.stanford.edu/projects/glove/",
+  "published_runtime_note": "El artículo reporta 85 min para coocurrencias (un hilo) y 14 min por iteración de 300d (32 cores), dual Intel Xeon E5-2658 2.1 GHz. No es un tiempo medido de glove.6B.100d."
+}

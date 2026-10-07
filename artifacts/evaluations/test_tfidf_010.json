@@ -1,0 +1,41 @@
+{
+  "key": "tfidf_010",
+  "initialization": "tfidf",
+  "name": "tfidf",
+  "fraction": 0.1,
+  "checkpoint_sha256": "b14268dd3319b25a2a6a989a2a9be20e08f049b3f860b86d37cd19833fe68b98",
+  "test_evaluations": 1,
+  "metrics": {
+    "accuracy": 0.8931578947368422,
+    "precision_macro": 0.892681195843719,
+    "recall_macro": 0.8931578947368422,
+    "f1_macro": 0.8927666333051392
+  },
+  "confusion_matrix": [
+    [
+      1682,
+      75,
+      83,
+      60
+    ],
+    [
+      25,
+      1850,
+      13,
+      12
+    ],
+    [
+      73,
+      26,
+      1619,
+      182
+    ],
+    [
+      73,
+      31,
+      159,
+      1637
+    ]
+  ],
+  "seconds": 0.749078572000144
+}

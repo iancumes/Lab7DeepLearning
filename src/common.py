@@ -41,7 +41,7 @@ def save_json(path, obj):
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_suffix(path.suffix + ".tmp")
     temp.write_text(json.dumps(obj, ensure_ascii=False, indent=2, allow_nan=False,
-                              default=lambda x: x.item() if hasattr(x, "item") else str(x)), encoding="utf-8")
+                                default=lambda x: x.item() if hasattr(x, "item") else str(x)), encoding="utf-8",newline="\n")
     temp.replace(path)
 
 def load_json(path):

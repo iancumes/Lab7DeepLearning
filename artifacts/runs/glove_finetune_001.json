@@ -1,0 +1,74 @@
+{
+  "key": "glove_finetune_001",
+  "name": "glove_finetune",
+  "initialization": "glove",
+  "freeze": false,
+  "fraction": 0.01,
+  "train_examples": 1080,
+  "dimension": 100,
+  "vocabulary_size": 4132,
+  "best_epoch": 3,
+  "validation": {
+    "accuracy": 0.66775,
+    "precision_macro": 0.6919269110080771,
+    "recall_macro": 0.66775,
+    "f1_macro": 0.6665252954647508
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.3980045583513048,
+      "validation_loss": 1.3784416097005208,
+      "seconds": 0.0299147990003803,
+      "accuracy": 0.25016666666666665,
+      "precision_macro": 0.11255212677231026,
+      "recall_macro": 0.25016666666666665,
+      "f1_macro": 0.10039893705438177
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.3720175407550954,
+      "validation_loss": 1.3582953186035156,
+      "seconds": 0.03248080899993511,
+      "accuracy": 0.4334166666666667,
+      "precision_macro": 0.6847753285313076,
+      "recall_macro": 0.4334166666666667,
+      "f1_macro": 0.3855757012386072
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.3473131586004186,
+      "validation_loss": 1.3407080790201822,
+      "seconds": 0.03218858199988972,
+      "accuracy": 0.66775,
+      "precision_macro": 0.6919269110080771,
+      "recall_macro": 0.66775,
+      "f1_macro": 0.6665252954647508
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.3258338027530245,
+      "validation_loss": 1.3245359598795572,
+      "seconds": 0.032993842999985645,
+      "accuracy": 0.534,
+      "precision_macro": 0.7178765151613957,
+      "recall_macro": 0.534,
+      "f1_macro": 0.5001305293745046
+    },
+    {
+      "epoch": 5,
+      "train_loss": 1.309336276407595,
+      "validation_loss": 1.307271489461263,
+      "seconds": 0.0308739259999129,
+      "accuracy": 0.5228333333333334,
+      "precision_macro": 0.7209462669245037,
+      "recall_macro": 0.5228333333333334,
+      "f1_macro": 0.4787968570807057
+    }
+  ],
+  "training_seconds": 0.1766694349998943,
+  "total_parameters": 426644,
+  "trainable_parameters": 426644,
+  "checkpoint": "classifiers/glove_finetune_001.pt",
+  "checkpoint_sha256": "8fc9f21d4fa8a00fe02bdbd35026c712cfdc7f7312d7fb950aaa01c918fa440a"
+}

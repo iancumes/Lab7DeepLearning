@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "pdf_pages": 5,
+  "word_pages": 5,
+  "native_word_tables": 9,
+  "native_word_text": true,
+  "matching_source_metrics": true,
+  "same_content": true,
+  "fragments_checked": 340,
+  "repository_link_verified": true,
+  "all_pdf_pages_visually_reviewed": true,
+  "all_word_pages_visually_reviewed": true,
+  "files": [
+    {
+      "path": "entregables/Laboratorio7_Ian_Cumes_23236.pdf",
+      "sha256": "8fceecaa3dda072219d36335afc2e66a64937c9343d1fd3c2ca8d0630806a978"
+    },
+    {
+      "path": "entregables/Laboratorio7_Ian_Cumes_23236.docx",
+      "sha256": "901e3348cfa8286016a4f1ce0264bf242889f39ab4e8d650c4aef1afa33f4c45"
+    }
+  ]
+}

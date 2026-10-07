@@ -1,0 +1,41 @@
+{
+  "key": "gensim_finetune_100",
+  "initialization": "gensim",
+  "name": "gensim_finetune",
+  "fraction": 1.0,
+  "checkpoint_sha256": "2437c00c4b2865cf0b0cf97d1dd0059f1dd0b2dd9023488c9ed3af3125deb101",
+  "test_evaluations": 1,
+  "metrics": {
+    "accuracy": 0.9203947368421053,
+    "precision_macro": 0.9206247464242668,
+    "recall_macro": 0.9203947368421053,
+    "f1_macro": 0.9203478400182971
+  },
+  "confusion_matrix": [
+    [
+      1717,
+      50,
+      78,
+      55
+    ],
+    [
+      16,
+      1861,
+      14,
+      9
+    ],
+    [
+      51,
+      9,
+      1681,
+      159
+    ],
+    [
+      42,
+      10,
+      112,
+      1736
+    ]
+  ],
+  "seconds": 0.12430496899969512
+}

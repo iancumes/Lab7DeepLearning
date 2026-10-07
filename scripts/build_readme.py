@@ -36,7 +36,7 @@ El Word conserva texto y tablas nativos. Las tablas extensas, 54 analogías indi
 
 WikiText: **{corpus['selected_tokens']:,} tokens normalizados**, {corpus['selected_articles']:,} artículos completos, semilla 23236. Los corpus 25/50/100% son prefijos anidados con fronteras de artículos. El corpus y vocabulario de gensim son los del SGNS seleccionado.
 
-La selección por WordSim-353 eligió **{best['config']['name']}, epoch {best['epoch']}**, dimensión {best['config']['dim']}, ventana {best['config']['window']}, {best['config']['negatives']} negativos; ρ={best['wordsim']['spearman']:.4f}. Se usaron `min_count=5`, subsampling `1e-4`, minibatch 4096, distribución de ruido unigram^0.75 y SGD lineal 0.025→0.0001. SimLex-999 se reservó para evaluación final. Hardware de SGNS: **{hardware['gpu'] or hardware['processor']}**, PyTorch {hardware['torch']}.
+La selección por WordSim-353 eligió **{best['config']['name']}, epoch {best['epoch']}**, dimensión {best['config']['dim']}, ventana {best['config']['window']}, {best['config']['negatives']} negativos; ρ={best['wordsim']['spearman']:.8f}. Se usaron `min_count=5`, subsampling `1e-4`, minibatch 4096, distribución de ruido unigram^0.75 y SGD lineal 0.025→0.0001. SimLex-999 se reservó para evaluación final. Hardware de SGNS: **{hardware['gpu'] or hardware['processor']}**, PyTorch {hardware['torch']}.
 
 F1 macro en el test oficial de AG News. Cada referencia usa la variante y checkpoint elegidos con validación para esa fracción.
 
@@ -78,7 +78,7 @@ Cada epoch SGNS guarda ambas tablas y el optimizador en `checkpoints/*.pt`; gens
 
 SHA256 de `best_sgns.kv`: `{manifest['sha256']}`.
 
-La auditoría [verification.json](artifacts/verification.json) comprueba 21 checkpoints, corpus mínimo, igualdad de vectores guardados, particiones anidadas y sin solapamiento de índices, hashes de selección, métricas y predicciones. [notebook_verification.json](artifacts/notebook_verification.json) registra ejecución desde kernel limpio y ausencia de errores.
+La auditoría [verification.json](artifacts/verification.json) comprueba 21 checkpoints, corpus mínimo, igualdad de vectores guardados, particiones anidadas y sin solapamiento de índices, hashes de selección, métricas y predicciones. [notebook_verification.json](artifacts/notebook_verification.json) registra ejecución desde kernel limpio y ausencia de errores. [document_verification.json](artifacts/document_verification.json) verifica cinco páginas en ambos formatos, nueve tablas nativas en Word y 340 fragmentos coincidentes con las métricas. Los hashes de los respaldos están en [checkpoint_backups.json](artifacts/checkpoint_backups.json); tres ZIP están en la release y los siete se conservaron localmente.
 
 ## Alcance y límites
 

@@ -1,0 +1,41 @@
+{
+  "key": "glove_finetune_001",
+  "initialization": "glove",
+  "name": "glove_finetune",
+  "fraction": 0.01,
+  "checkpoint_sha256": "8fc9f21d4fa8a00fe02bdbd35026c712cfdc7f7312d7fb950aaa01c918fa440a",
+  "test_evaluations": 1,
+  "metrics": {
+    "accuracy": 0.6684210526315789,
+    "precision_macro": 0.6925531613222291,
+    "recall_macro": 0.6684210526315789,
+    "f1_macro": 0.6673447281700003
+  },
+  "confusion_matrix": [
+    [
+      1634,
+      125,
+      105,
+      36
+    ],
+    [
+      600,
+      1145,
+      129,
+      26
+    ],
+    [
+      365,
+      55,
+      1185,
+      295
+    ],
+    [
+      277,
+      144,
+      363,
+      1116
+    ]
+  ],
+  "seconds": 0.08544756900028005
+}

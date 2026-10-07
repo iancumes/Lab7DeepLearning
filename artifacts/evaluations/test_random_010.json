@@ -1,0 +1,41 @@
+{
+  "key": "random_010",
+  "initialization": "random",
+  "name": "random",
+  "fraction": 0.1,
+  "checkpoint_sha256": "b9fad928a63f6e854a1ec919ed802393e9fb1e8253213a782e28c08db43fa8e6",
+  "test_evaluations": 1,
+  "metrics": {
+    "accuracy": 0.8876315789473684,
+    "precision_macro": 0.8874622292208469,
+    "recall_macro": 0.8876315789473685,
+    "f1_macro": 0.8874811642411078
+  },
+  "confusion_matrix": [
+    [
+      1701,
+      64,
+      87,
+      48
+    ],
+    [
+      47,
+      1816,
+      16,
+      21
+    ],
+    [
+      97,
+      12,
+      1581,
+      210
+    ],
+    [
+      76,
+      16,
+      160,
+      1648
+    ]
+  ],
+  "seconds": 0.09804616700012048
+}

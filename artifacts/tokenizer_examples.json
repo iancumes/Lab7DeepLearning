@@ -1,0 +1,297 @@
+[
+  {
+    "sentence": "I can't believe it's already October.",
+    "custom": [
+      "i",
+      "can't",
+      "believe",
+      "it's",
+      "already",
+      "october",
+      "."
+    ],
+    "nltk": [
+      "i",
+      "ca",
+      "n't",
+      "believe",
+      "it",
+      "'s",
+      "already",
+      "october",
+      "."
+    ]
+  },
+  {
+    "sentence": "She won't buy John's laptop.",
+    "custom": [
+      "she",
+      "won't",
+      "buy",
+      "john's",
+      "laptop",
+      "."
+    ],
+    "nltk": [
+      "she",
+      "wo",
+      "n't",
+      "buy",
+      "john",
+      "'s",
+      "laptop",
+      "."
+    ]
+  },
+  {
+    "sentence": "A state-of-the-art computer costs $1,299.50.",
+    "custom": [
+      "a",
+      "state",
+      "-",
+      "of",
+      "-",
+      "the",
+      "-",
+      "art",
+      "computer",
+      "costs",
+      "$",
+      "1,299.50",
+      "."
+    ],
+    "nltk": [
+      "a",
+      "state-of-the-art",
+      "computer",
+      "costs",
+      "$",
+      "1,299.50",
+      "."
+    ]
+  },
+  {
+    "sentence": "Dr. Smith lives in the U.S.A.",
+    "custom": [
+      "dr",
+      ".",
+      "smith",
+      "lives",
+      "in",
+      "the",
+      "u",
+      ".",
+      "s",
+      ".",
+      "a",
+      "."
+    ],
+    "nltk": [
+      "dr.",
+      "smith",
+      "lives",
+      "in",
+      "the",
+      "u.s.a",
+      "."
+    ]
+  },
+  {
+    "sentence": "We're testing NLP-based models.",
+    "custom": [
+      "we're",
+      "testing",
+      "nlp",
+      "-",
+      "based",
+      "models",
+      "."
+    ],
+    "nltk": [
+      "we",
+      "'re",
+      "testing",
+      "nlp-based",
+      "models",
+      "."
+    ]
+  },
+  {
+    "sentence": "They've run 10,000 experiments.",
+    "custom": [
+      "they've",
+      "run",
+      "10,000",
+      "experiments",
+      "."
+    ],
+    "nltk": [
+      "they",
+      "'ve",
+      "run",
+      "10,000",
+      "experiments",
+      "."
+    ]
+  },
+  {
+    "sentence": "The king's daughter isn't a queen.",
+    "custom": [
+      "the",
+      "king's",
+      "daughter",
+      "isn't",
+      "a",
+      "queen",
+      "."
+    ],
+    "nltk": [
+      "the",
+      "king",
+      "'s",
+      "daughter",
+      "is",
+      "n't",
+      "a",
+      "queen",
+      "."
+    ]
+  },
+  {
+    "sentence": "He said, \"Hello... world!\"",
+    "custom": [
+      "he",
+      "said",
+      ",",
+      "\"",
+      "hello",
+      ".",
+      ".",
+      ".",
+      "world",
+      "!",
+      "\""
+    ],
+    "nltk": [
+      "he",
+      "said",
+      ",",
+      "``",
+      "hello",
+      "...",
+      "world",
+      "!",
+      "''"
+    ]
+  },
+  {
+    "sentence": "Wikipedia uses @-@ markers and @,@ commas.",
+    "custom": [
+      "wikipedia",
+      "uses",
+      "-",
+      "markers",
+      "and",
+      ",",
+      "commas",
+      "."
+    ],
+    "nltk": [
+      "wikipedia",
+      "uses",
+      "-",
+      "markers",
+      "and",
+      ",",
+      "commas",
+      "."
+    ]
+  },
+  {
+    "sentence": "Email user@example.com or visit https://uvg.edu.gt.",
+    "custom": [
+      "email",
+      "user",
+      "@",
+      "example",
+      ".",
+      "com",
+      "or",
+      "visit",
+      "https",
+      ":",
+      "/",
+      "/",
+      "uvg",
+      ".",
+      "edu",
+      ".",
+      "gt",
+      "."
+    ],
+    "nltk": [
+      "email",
+      "user",
+      "@",
+      "example.com",
+      "or",
+      "visit",
+      "https",
+      ":",
+      "//uvg.edu.gt",
+      "."
+    ]
+  },
+  {
+    "sentence": "Dogs, cats; and mice (plural nouns).",
+    "custom": [
+      "dogs",
+      ",",
+      "cats",
+      ";",
+      "and",
+      "mice",
+      "(",
+      "plural",
+      "nouns",
+      ")",
+      "."
+    ],
+    "nltk": [
+      "dogs",
+      ",",
+      "cats",
+      ";",
+      "and",
+      "mice",
+      "(",
+      "plural",
+      "nouns",
+      ")",
+      "."
+    ]
+  },
+  {
+    "sentence": "The naïve café owner scored 99.5%.",
+    "custom": [
+      "the",
+      "naïve",
+      "café",
+      "owner",
+      "scored",
+      "99.5",
+      "%",
+      "."
+    ],
+    "nltk": [
+      "the",
+      "naïve",
+      "café",
+      "owner",
+      "scored",
+      "99.5",
+      "%",
+      "."
+    ]
+  }
+]

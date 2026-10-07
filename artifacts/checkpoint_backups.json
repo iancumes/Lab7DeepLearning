@@ -1,0 +1,204 @@
+{
+  "source": "Google Colab gratuito con Tesla T4",
+  "sgns_epochs_recovered": 21,
+  "archives": [
+    {
+      "configuration": "base100",
+      "file": "lab7_base100_checkpoints.zip",
+      "bytes": 173349411,
+      "sha256": "9e3ea447f25af1ef0853c397a417efbe428a26236a1cfae325766bf14af83880",
+      "checksum_verified_with_colab": true,
+      "epochs": [
+        1,
+        2,
+        3
+      ],
+      "published_url": "https://github.com/iancumes/Lab7DeepLearning/releases/download/v1.0-lab7/lab7_base100_checkpoints.zip"
+    },
+    {
+      "configuration": "dim50",
+      "file": "lab7_dim50_checkpoints.zip",
+      "bytes": 86690141,
+      "sha256": "56788771eb8573a4eb26a955996faca2ce65ce2aee5be85ce34c0e1eaf895e19",
+      "checksum_verified_with_colab": true,
+      "epochs": [
+        1,
+        2,
+        3
+      ],
+      "published_url": "https://github.com/iancumes/Lab7DeepLearning/releases/download/v1.0-lab7/lab7_dim50_checkpoints.zip"
+    },
+    {
+      "configuration": "dim300",
+      "file": "lab7_dim300_checkpoints.zip",
+      "bytes": 519986178,
+      "sha256": "c73bfe2697e465423f0ce6dc5e827138b1d4bdd2bc34bda33de9d1e647be8c9d",
+      "checksum_verified_with_colab": true,
+      "epochs": [
+        1,
+        2,
+        3
+      ],
+      "published_url": "https://github.com/iancumes/Lab7DeepLearning/releases/download/v1.0-lab7/lab7_dim300_checkpoints.zip"
+    },
+    {
+      "configuration": "corpus25",
+      "file": "lab7_corpus25_checkpoints.zip",
+      "bytes": 83361198,
+      "sha256": "29caa877bc95a486279ccfaf3325bfbbc3053e5134a7b065a37f034b301f857d",
+      "checksum_verified_with_colab": true,
+      "epochs": [
+        1,
+        2,
+        3
+      ],
+      "published_url": null
+    },
+    {
+      "configuration": "corpus50",
+      "file": "lab7_corpus50_checkpoints.zip",
+      "bytes": 120954887,
+      "sha256": "2959886443ba9feb3b11f858bb22fbf91a198da11f9d6546948fa2700a23aace",
+      "checksum_verified_with_colab": true,
+      "epochs": [
+        1,
+        2,
+        3
+      ],
+      "published_url": null
+    },
+    {
+      "configuration": "window2",
+      "file": "lab7_window2_checkpoints.zip",
+      "bytes": 173349405,
+      "sha256": "414228c8aac1866af8848d1bd98217c7fcb166a09dc3c55126a6b919e3b06a69",
+      "checksum_verified_with_colab": true,
+      "epochs": [
+        1,
+        2,
+        3
+      ],
+      "published_url": null
+    },
+    {
+      "configuration": "negative10",
+      "file": "lab7_negative10_checkpoints.zip",
+      "bytes": 173349543,
+      "sha256": "4953aeb875a46705e8734e5629245d1664ab87b09741625e8c205327706ab07e",
+      "checksum_verified_with_colab": true,
+      "epochs": [
+        1,
+        2,
+        3
+      ],
+      "published_url": null
+    }
+  ],
+  "checkpoints": [
+    {
+      "file": "base100_e1.pt",
+      "bytes": 57775485,
+      "sha256": "2b0fe40128e488b0026d650b90d59703d2125ba63d1f8892edd76b5d93ae295a"
+    },
+    {
+      "file": "base100_e2.pt",
+      "bytes": 57775485,
+      "sha256": "020b7682264d0e71c7b04abc5ed457614329764b5220cbac298dd53ee6c996bf"
+    },
+    {
+      "file": "base100_e3.pt",
+      "bytes": 57775485,
+      "sha256": "8b2ad6a2fb9c934dcbaad01f5d137b85b56481c6dcb7dab76b2dfa822062d2ae"
+    },
+    {
+      "file": "corpus25_e1.pt",
+      "bytes": 27779461,
+      "sha256": "4abe838846a0d96e81bf7c186d71746b5e23faca2c194f42ad360308709c5a94"
+    },
+    {
+      "file": "corpus25_e2.pt",
+      "bytes": 27779461,
+      "sha256": "f8182406b0ab972c5c4b930cc568459ea0c14fed125ec94bdf51f23de5dc0905"
+    },
+    {
+      "file": "corpus25_e3.pt",
+      "bytes": 27779461,
+      "sha256": "e7458c5179554852b6e687248a8823fd5be8c0e58b14f6ad7779d9173b342e6a"
+    },
+    {
+      "file": "corpus50_e1.pt",
+      "bytes": 40310661,
+      "sha256": "f532a8e007c08208c84eb789636d28daa830b895c6ae22046b26ce2d51e1f303"
+    },
+    {
+      "file": "corpus50_e2.pt",
+      "bytes": 40310661,
+      "sha256": "1e02cdec5d438e9e7d841e7415cd29d0061951938147a5b59ef8e6e0a554a091"
+    },
+    {
+      "file": "corpus50_e3.pt",
+      "bytes": 40310661,
+      "sha256": "cf1a73e542122b2b0ddde7ed64dbb1d4b4093dfafdfc29d73fb9ad5c2c65f3d1"
+    },
+    {
+      "file": "dim300_e1.pt",
+      "bytes": 173321077,
+      "sha256": "bbc24694e73652bf01da697ed782a0b92a469276a8e094ee212a69b09023a938"
+    },
+    {
+      "file": "dim300_e2.pt",
+      "bytes": 173321077,
+      "sha256": "14a1b21f36438395dec2f4313250452c132d2b0f9eaf2439a495344afd39b5f6"
+    },
+    {
+      "file": "dim300_e3.pt",
+      "bytes": 173321077,
+      "sha256": "727abfb8591cc87f1efb1ca1508749c24e6f6cc374270a924e456579eb6630a5"
+    },
+    {
+      "file": "dim50_e1.pt",
+      "bytes": 28889069,
+      "sha256": "89cf3db2df6c03c8fc7268fd9f1709c4b4ca6d7756956ce8fd27d8d996652353"
+    },
+    {
+      "file": "dim50_e2.pt",
+      "bytes": 28889069,
+      "sha256": "4b943236da27ba6482ad3fc4d384d78c9e283476703795c976e3d3c4d29822a5"
+    },
+    {
+      "file": "dim50_e3.pt",
+      "bytes": 28889069,
+      "sha256": "d8b9c5441afe1a28e4b8f20a6813576f234847a85e8073c44fe2c3a85b960f7a"
+    },
+    {
+      "file": "negative10_e1.pt",
+      "bytes": 57775509,
+      "sha256": "19f5b499a15c87d0ebc394e778f5a9a30499b861989ee94bc6cdf8a1f39439be"
+    },
+    {
+      "file": "negative10_e2.pt",
+      "bytes": 57775509,
+      "sha256": "81cf5b7c7d443da168e882a610d341829c8d659e9f2d29845a227bea4854b8a5"
+    },
+    {
+      "file": "negative10_e3.pt",
+      "bytes": 57775509,
+      "sha256": "8413a14af06fe79f55f9d4b2f13bc51213db462bf8cfd05b01b92bd0c21fdd1e"
+    },
+    {
+      "file": "window2_e1.pt",
+      "bytes": 57775485,
+      "sha256": "9ebf65857afb066919b00a25f3e1305676cde5b8ec15150eb8a56b2134d2aff7"
+    },
+    {
+      "file": "window2_e2.pt",
+      "bytes": 57775485,
+      "sha256": "d6dffacc7321e08465e7c0a71539e57aea4dfd0fae1e33963f2ca40dd439f6f1"
+    },
+    {
+      "file": "window2_e3.pt",
+      "bytes": 57775485,
+      "sha256": "92667ba7d3857e9b3217d68b755a933a485fe99acaf6edc3d75d61c06104a802"
+    }
+  ]
+}

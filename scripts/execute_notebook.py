@@ -13,7 +13,8 @@ path=ROOT/'Laboratorio7_Ian_Cumes_23236.ipynb'
 notebook=nbformat.read(path,as_version=4)
 started=time.perf_counter()
 NotebookClient(notebook,timeout=600,kernel_name='lab7',allow_errors=False,resources={'metadata':{'path':str(ROOT)}}).execute()
-nbformat.write(notebook,path)
+with path.open('w',encoding='utf-8',newline='\n') as output:
+    nbformat.write(notebook,output)
 cells=[c for c in notebook.cells if c.cell_type=='code']
 assert all(c.execution_count is not None for c in cells)
 assert all(o.output_type!='error' for c in cells for o in c.get('outputs',[]))

@@ -1,0 +1,282 @@
+{
+  "analogies": {
+    "method": "3CosAdd",
+    "candidate_vocabulary": 30000,
+    "categories": [
+      {
+        "category": "capital-common-countries",
+        "total": 506,
+        "evaluated": 380,
+        "correct": 355,
+        "coverage": 0.7509881422924901,
+        "accuracy": 0.9342105263157895
+      },
+      {
+        "category": "capital-world",
+        "total": 4524,
+        "evaluated": 903,
+        "correct": 787,
+        "coverage": 0.19960212201591512,
+        "accuracy": 0.8715393133997785
+      },
+      {
+        "category": "currency",
+        "total": 866,
+        "evaluated": 70,
+        "correct": 4,
+        "coverage": 0.08083140877598152,
+        "accuracy": 0.05714285714285714
+      },
+      {
+        "category": "city-in-state",
+        "total": 2467,
+        "evaluated": 1823,
+        "correct": 562,
+        "coverage": 0.7389541953790029,
+        "accuracy": 0.30828304991771804
+      },
+      {
+        "category": "family",
+        "total": 506,
+        "evaluated": 342,
+        "correct": 302,
+        "coverage": 0.6758893280632411,
+        "accuracy": 0.8830409356725146
+      },
+      {
+        "category": "gram1-adjective-to-adverb",
+        "total": 992,
+        "evaluated": 930,
+        "correct": 251,
+        "coverage": 0.9375,
+        "accuracy": 0.2698924731182796
+      },
+      {
+        "category": "gram2-opposite",
+        "total": 812,
+        "evaluated": 420,
+        "correct": 116,
+        "coverage": 0.5172413793103449,
+        "accuracy": 0.2761904761904762
+      },
+      {
+        "category": "gram3-comparative",
+        "total": 1332,
+        "evaluated": 1260,
+        "correct": 1013,
+        "coverage": 0.9459459459459459,
+        "accuracy": 0.803968253968254
+      },
+      {
+        "category": "gram4-superlative",
+        "total": 1122,
+        "evaluated": 702,
+        "correct": 430,
+        "coverage": 0.6256684491978609,
+        "accuracy": 0.6125356125356125
+      },
+      {
+        "category": "gram5-present-participle",
+        "total": 1056,
+        "evaluated": 930,
+        "correct": 654,
+        "coverage": 0.8806818181818182,
+        "accuracy": 0.7032258064516129
+      },
+      {
+        "category": "gram6-nationality-adjective",
+        "total": 1599,
+        "evaluated": 1371,
+        "correct": 1299,
+        "coverage": 0.8574108818011257,
+        "accuracy": 0.9474835886214442
+      },
+      {
+        "category": "gram7-past-tense",
+        "total": 1560,
+        "evaluated": 1482,
+        "correct": 831,
+        "coverage": 0.95,
+        "accuracy": 0.5607287449392713
+      },
+      {
+        "category": "gram8-plural",
+        "total": 1332,
+        "evaluated": 1056,
+        "correct": 828,
+        "coverage": 0.7927927927927928,
+        "accuracy": 0.7840909090909091
+      },
+      {
+        "category": "gram9-plural-verbs",
+        "total": 870,
+        "evaluated": 812,
+        "correct": 467,
+        "coverage": 0.9333333333333333,
+        "accuracy": 0.5751231527093597
+      }
+    ],
+    "semantic": {
+      "accuracy": 0.5713473564525299,
+      "evaluated": 3518,
+      "correct": 2010,
+      "total": 8869,
+      "coverage": 0.3966625324162814
+    },
+    "syntactic": {
+      "accuracy": 0.6570344750641526,
+      "evaluated": 8963,
+      "correct": 5889,
+      "total": 10675,
+      "coverage": 0.8396252927400468
+    },
+    "total": {
+      "accuracy": 0.632881980610528,
+      "evaluated": 12481,
+      "correct": 7899,
+      "total": 19544,
+      "coverage": 0.6386103151862464
+    }
+  },
+  "wordsim": {
+    "spearman": 0.5545699684616253,
+    "evaluated": 328,
+    "total": 353,
+    "coverage": 0.9291784702549575,
+    "fixed_selection_pairs": true
+  },
+  "neighbors": {
+    "king": [
+      [
+        "prince",
+        0.7682328820228577
+      ],
+      [
+        "queen",
+        0.7507690787315369
+      ],
+      [
+        "son",
+        0.7020888328552246
+      ],
+      [
+        "brother",
+        0.6985775232315063
+      ],
+      [
+        "monarch",
+        0.6977890729904175
+      ]
+    ],
+    "france": [
+      [
+        "belgium",
+        0.8076421618461609
+      ],
+      [
+        "french",
+        0.8004378080368042
+      ],
+      [
+        "britain",
+        0.7950528264045715
+      ],
+      [
+        "spain",
+        0.7557463645935059
+      ],
+      [
+        "paris",
+        0.7481585741043091
+      ]
+    ],
+    "computer": [
+      [
+        "computers",
+        0.8751984238624573
+      ],
+      [
+        "software",
+        0.8373122215270996
+      ],
+      [
+        "technology",
+        0.7642159461975098
+      ],
+      [
+        "pc",
+        0.7366448640823364
+      ],
+      [
+        "hardware",
+        0.7290390729904175
+      ]
+    ],
+    "good": [
+      [
+        "better",
+        0.893191397190094
+      ],
+      [
+        "sure",
+        0.8314563035964966
+      ],
+      [
+        "really",
+        0.8297762274742126
+      ],
+      [
+        "kind",
+        0.8288268446922302
+      ],
+      [
+        "very",
+        0.8260800242424011
+      ]
+    ],
+    "january": [
+      [
+        "december",
+        0.9880478978157043
+      ],
+      [
+        "october",
+        0.9877657294273376
+      ],
+      [
+        "february",
+        0.987628698348999
+      ],
+      [
+        "november",
+        0.9863874316215515
+      ],
+      [
+        "september",
+        0.9842436909675598
+      ]
+    ],
+    "run": [
+      [
+        "running",
+        0.8024195432662964
+      ],
+      [
+        "runs",
+        0.7739369869232178
+      ],
+      [
+        "ran",
+        0.7490553259849548
+      ],
+      [
+        "out",
+        0.7392130494117737
+      ],
+      [
+        "go",
+        0.728611171245575
+      ]
+    ]
+  }
+}

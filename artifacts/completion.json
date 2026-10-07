@@ -1,0 +1,9 @@
+{
+  "complete": true,
+  "seconds_current_invocation": 2152.322394941,
+  "sgns_iterations": 7,
+  "sgns_epochs": 21,
+  "classifiers": 32,
+  "final_test_models": 20,
+  "seed": 23236
+}

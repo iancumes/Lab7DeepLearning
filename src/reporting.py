@@ -53,6 +53,7 @@ def tables():
         final=cls[(cls.model==model)&(cls.fraction==1)].iloc[0]
         comparison.append(dict(model=model,dimension=r['dimension'],vocabulary=r['vocabulary_size'],
            semantic=r['three_cos_add']['semantic']['accuracy'],syntactic=r['three_cos_add']['syntactic']['accuracy'],
+           semantic_mul=r['three_cos_mul']['semantic']['accuracy'],syntactic_mul=r['three_cos_mul']['syntactic']['accuracy'],
            analogy_add=r['three_cos_add']['total']['accuracy'],analogy_mul=r['three_cos_mul']['total']['accuracy'],
            analogy_coverage=r['three_cos_add']['total']['coverage'],wordsim=r['wordsim']['spearman'],
            wordsim_coverage=r['wordsim']['coverage'],simlex=r['simlex']['spearman'],
@@ -121,7 +122,7 @@ def figures(output=None):
     save_figure(fig,'classification_vs_data')
     chosen=load_json(ART/'classification_selection.json')['all_results']
     for fraction in [.01,.1,.5,1.0]:
-        fig,axes=plt.subplots(1,3,figsize=(14,4))
+        fig,axes=plt.subplots(1,3,figsize=(14,4.3))
         for row in chosen:
             if row['fraction']!=fraction: continue
             history=pd.DataFrame(row['history'])
@@ -133,7 +134,9 @@ def figures(output=None):
         axes[0].set(xlabel='Epoch',ylabel='Pérdida de entrenamiento')
         axes[1].set(xlabel='Epoch',ylabel='Pérdida de validación')
         axes[2].set(xlabel='Epoch',ylabel='F1 macro de validación (%)')
-        axes[2].legend(fontsize=7,ncol=2)
+        handles,labels=axes[2].get_legend_handles_labels()
+        fig.legend(handles,labels,fontsize=8,ncol=4,loc='lower center',
+                   bbox_to_anchor=(.5,-.1))
         fig.suptitle(f'AG News: {100*fraction:g}% del entrenamiento')
         save_figure(fig,f'classification_curves_{int(fraction*100)}')
     tests=[r for r in load_json(ART/'evaluations'/'classification_test.json') if r['fraction']==1]
@@ -147,6 +150,52 @@ def figures(output=None):
         ax.grid(False)
     axes[0].set_ylabel('Etiqueta real')
     save_figure(fig,'confusion_matrices')
+    if (ART/'tsne_coordinates.csv').exists():
+        plot_tsne_coordinates(pd.read_csv(ART/'tsne_coordinates.csv'))
+
+
+def plot_tsne_coordinates(frame):
+    """Redibuja proyecciones guardadas sin recalcular ni alterar sus coordenadas."""
+    groups=['Geografía y monedas','Familia','Adjetivos','Verbos','Sustantivos']
+    palette=dict(zip(groups,['#28629C','#A64B20','#B58B24','#61752F','#9A5278']))
+    markers=dict(zip(groups,['o','s','^','D','v']))
+    def draw(ax, part):
+        for group in groups:
+            subset=part[part.group==group]
+            ax.scatter(subset.x,subset.y,s=13,alpha=.7,label=group,
+                       color=palette[group],marker=markers[group])
+        # Una etiqueta representativa por grupo, con distancia mínima entre
+        # etiquetas. El resto de las 500 palabras permanece en el CSV.
+        span=np.maximum(np.ptp(part[['x','y']].to_numpy(),axis=0),1e-8)
+        placed=[]
+        for group in groups:
+            subset=part[part.group==group].sort_values('word')
+            center=subset[['x','y']].median().to_numpy()
+            candidates=subset.assign(distance=np.linalg.norm(
+                (subset[['x','y']].to_numpy()-center)/span,axis=1)).sort_values('distance')
+            for row in candidates.itertuples():
+                point=np.array([row.x,row.y])/span
+                if all(np.linalg.norm(point-other)>.12 for other in placed):
+                    ax.annotate(row.word,(row.x,row.y),xytext=(4,5),
+                                textcoords='offset points',fontsize=8,
+                                bbox=dict(facecolor='white',alpha=.8,edgecolor='none',pad=1))
+                    placed.append(point)
+                    break
+        ax.set(xlabel='t SNE 1',ylabel='t SNE 2')
+    fig,axes=plt.subplots(1,3,figsize=(15,4.8))
+    for ax,(model,part) in zip(axes,frame.groupby('model',sort=False)):
+        draw(ax,part)
+        ax.set_title(f'{model} ({len(part)} palabras)')
+    handles,labels=axes[0].get_legend_handles_labels()
+    fig.legend(handles,labels,loc='lower center',ncol=5,fontsize=9,
+               bbox_to_anchor=(.5,-.035))
+    save_figure(fig,'tsne')
+    fig,ax=plt.subplots(figsize=(7.2,3.2))
+    draw(ax,frame[frame.model=='sgns'])
+    handles,labels=ax.get_legend_handles_labels()
+    fig.legend(handles,labels,loc='lower center',ncol=3,fontsize=8,
+               bbox_to_anchor=(.5,-.1))
+    save_figure(fig,'tsne_sgns')
 
 def tsne(models):
     shared=set(load_json(ART/'shared_vocabulary.json'))
@@ -176,29 +225,10 @@ def tsne(models):
     assert len(chosen)>=450,len(chosen)
     words=list(chosen)
     rows=[]
-    fig,axes=plt.subplots(1,3,figsize=(15,4.5))
-    palette=dict(zip(groups,['#28629C','#A64B20','#B58B24','#61752F','#9A5278']))
-    markers=dict(zip(groups,['o','s','^','D','v']))
-    for ax,(model,kv) in zip(axes,models.items()):
+    for model,kv in models.items():
         matrix=np.array([kv.get_vector(w,norm=True) for w in words])
         coordinates=TSNE(n_components=2,perplexity=30,init='pca',metric='cosine',max_iter=1500,random_state=SEED,n_jobs=2).fit_transform(matrix)
-        for group in groups:
-            mask=np.array([chosen[w]==group for w in words])
-            ax.scatter(coordinates[mask,0],coordinates[mask,1],s=13,alpha=.7,label=group,color=palette[group],marker=markers[group])
-        for i in range(0,len(words),40): ax.annotate(words[i],coordinates[i],fontsize=8)
-        ax.set(title=f'{model} ({len(words)} palabras)',xlabel='t SNE 1',ylabel='t SNE 2')
         rows.extend(dict(model=model,word=w,group=chosen[w],x=float(x),y=float(y)) for w,(x,y) in zip(words,coordinates))
-    axes[-1].legend(fontsize=9)
-    save_figure(fig,'tsne')
     pd.DataFrame(rows).to_csv(ART/'tsne_coordinates.csv',index=False)
-    focus=pd.DataFrame([r for r in rows if r['model']=='sgns'])
-    fig,ax=plt.subplots(figsize=(7.2,2.7))
-    for group in groups:
-        part=focus[focus.group==group]
-        ax.scatter(part.x,part.y,s=10,alpha=.7,label=group,color=palette[group],marker=markers[group])
-    for i in range(0,len(focus),45):
-        r=focus.iloc[i]; ax.annotate(r.word,(r.x,r.y),fontsize=8)
-    ax.set(xlabel='t SNE 1',ylabel='t SNE 2')
-    ax.legend(fontsize=7,ncol=3,loc='upper center',bbox_to_anchor=(.5,1.35))
-    save_figure(fig,'tsne_sgns')
+    plot_tsne_coordinates(pd.DataFrame(rows))
     save_json(ART/'tsne_selection.json',dict(seed=SEED,words=chosen,perplexity=30,max_iter=1500,metric='cosine',note='Grupos léxicos definidos por categorías de analogías; ejes y distancias globales no tienen interpretación semántica directa.'))

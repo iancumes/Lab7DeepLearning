@@ -1,0 +1,54 @@
+{
+  "key": "tfidf_100",
+  "name": "tfidf",
+  "initialization": "tfidf",
+  "freeze": null,
+  "fraction": 1.0,
+  "train_examples": 108000,
+  "dimension": null,
+  "vocabulary_size": 100000,
+  "best_epoch": 1,
+  "validation": {
+    "accuracy": 0.922,
+    "precision_macro": 0.921876642114383,
+    "recall_macro": 0.922,
+    "f1_macro": 0.921787894887558
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.260985695413187,
+      "validation_loss": 0.3004592196578064,
+      "seconds": 0.8185087259998909,
+      "accuracy": 0.922,
+      "precision_macro": 0.921876642114383,
+      "recall_macro": 0.922,
+      "f1_macro": 0.921787894887558
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.2557821106263153,
+      "validation_loss": 0.2979349085650703,
+      "seconds": 0.6420129339999221,
+      "accuracy": 0.9215,
+      "precision_macro": 0.9214023673928143,
+      "recall_macro": 0.9215,
+      "f1_macro": 0.9213077397138326
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.25643401640771196,
+      "validation_loss": 0.2991152465446534,
+      "seconds": 0.5289491180001278,
+      "accuracy": 0.922,
+      "precision_macro": 0.9218307339783097,
+      "recall_macro": 0.922,
+      "f1_macro": 0.9217793017476157
+    }
+  ],
+  "training_seconds": 43.543900159999794,
+  "total_parameters": 400004,
+  "trainable_parameters": 400004,
+  "checkpoint": "classifiers/tfidf_100.pkl",
+  "checkpoint_sha256": "33ef9c5ae4eaa42450c7f4e77a26d653afd59bce430b53dc76904f227b1e8b6e"
+}
