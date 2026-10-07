@@ -40,6 +40,12 @@ def main(checkpoints=True):
     expected=max(candidates,key=lambda r:(r['wordsim']['spearman'] if r['wordsim']['spearman'] is not None else -2,r['analogies']['total']['accuracy'] or 0,-r['config']['dim'],-r['epoch']))
     observed=load_json(ART/'best_sgns.json')
     assert (expected['config']['name'],expected['epoch'])==(observed['config']['name'],observed['epoch'])
+    if checkpoints:
+        selected_vectors=KeyedVectors.load(str(CHECKPOINTS/f"{observed['config']['name']}_e{observed['epoch']}.kv"),mmap='r')
+        published_vectors=KeyedVectors.load(str(CHECKPOINTS/'best_sgns.kv'),mmap='r')
+        assert published_vectors.index_to_key==selected_vectors.index_to_key
+        assert np.array_equal(published_vectors.vectors,selected_vectors.vectors)
+        del selected_vectors,published_vectors
     gensim_logs=load_json(ART/'runs/gensim.json')
     assert len(gensim_logs)==3 and all(r['config']==observed['config'] for r in gensim_logs)
     if checkpoints:
@@ -50,8 +56,14 @@ def main(checkpoints=True):
             assert np.isfinite(kv.vectors).all()
             if kv.norms is not None: assert np.allclose(kv.norms,np.linalg.norm(kv.vectors,axis=1),rtol=1e-5,atol=1e-6)
             del kv
+        final_vectors=KeyedVectors.load(str(CHECKPOINTS/'gensim.kv'),mmap='r')
+        last_vectors=KeyedVectors.load(str(CHECKPOINTS/'gensim_e3.kv'),mmap='r')
+        assert final_vectors.index_to_key==last_vectors.index_to_key
+        assert np.array_equal(final_vectors.vectors,last_vectors.vectors)
+        del final_vectors,last_vectors
     split=load_json(ART/'news_split.json'); train=set(split['train_indices']); val=set(split['validation_indices'])
     assert not train&val and len(train)==108000 and len(val)==12000 and split['official_test_size']==7600
+    assert split['train_label_counts']==[27000]*4 and split['validation_label_counts']==[3000]*4
     subsets=[set(split['subsets'][str(f)]) for f in [.01,.1,.5,1.0]]
     assert all(subsets[i]<=subsets[i+1]<=train for i in range(3))
     selection=load_json(ART/'classification_selection.json'); tests=load_json(ART/'evaluations'/'classification_test.json')
@@ -79,7 +91,8 @@ def main(checkpoints=True):
     save_json(ART/('verification.json' if checkpoints else 'verification_local.json'),dict(passed=True,checkpoints_verified=checked,sgns_epochs=21,
         classifiers=32,selected_test_models=20,test_examples=7600,shared_vocabulary=30000,
         corpus_minimum_passed=True,complete_articles=True,gensim_configuration_matches=True,
-        gensim_vectors_verified=checkpoints,partitions_disjoint=True,selection_hashes_match=True,predictions_match_metrics=True))
+        gensim_vectors_verified=checkpoints,best_vectors_match_selection=checkpoints,
+        partitions_disjoint=True,stratification_verified=True,selection_hashes_match=True,predictions_match_metrics=True))
     print('VERIFICACION_CORRECTA',len(checked),'checkpoints')
 
 if __name__=='__main__': main('--no-checkpoints' not in sys.argv)

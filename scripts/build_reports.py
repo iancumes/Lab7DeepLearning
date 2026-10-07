@@ -60,8 +60,8 @@ def build_content():
       p(f"Selección: {best['config']['name']}, epoch {best['epoch']}, ρ WordSim={rho(best['wordsim']['spearman'])}. En la base, el subsampling redujo {number(meta['pairs_before_subsampling'])} pares a {number(base['pairs'])} en la primera epoch; conservó {number(base['retained_tokens'])} tokens elegibles. La pérdida media base pasó de {runs['base100'][0]['loss']:.3f} a {runs['base100'][-1]['loss']:.3f}."),
       p('El descarte observado de the/of/and en la primera epoch fue '+', '.join(f"{w}: {percent(s['observed_discard_fraction'])}" for w,s in base['subsampling'].items())+'.'),
       p(f"Hardware medido: {hw['gpu'] or hw['processor']}, PyTorch {hw['torch']}, Python {hw['python']}; tiempo SGNS acumulado de las siete configuraciones {mins(total_seconds)} minutos. La memoria GPU máxima asignada a tensores durante entrenamiento fue {max(r['gpu_peak_bytes'] or 0 for rows in runs.values() for r in rows)/1024**2:.1f} MiB. Estos tiempos excluyen descarga y evaluación."),
-      p('Gensim usa el corpus/vocabulario seleccionado y parámetros equivalentes, cuatro workers y ventana fija. Sus actualizaciones Cython asíncronas y secuenciales difieren de los minibatches de PyTorch; también descarta colisiones de negativos en vez de redibujarlas. No se exige igualdad numérica de vectores. Se conserva su registro por epoch.'),
-      p('GloVe es exactamente glove-wiki-gigaword-100: 400000 palabras, 100d y 6 mil millones de tokens. No se entrenó aquí. El artículo informa hardware dual Intel Xeon E5-2658 de 2.1 GHz, 85 min de coocurrencias en un hilo y 14 min por iteración de 300d en 32 cores. Estas mediciones corresponden a otras dimensiones y no al tiempo de glove.6B.100d.')])
+      p('Gensim usa el mismo corpus/vocabulario y parámetros equivalentes, cuatro workers y ventana fija. Sus actualizaciones Cython asíncronas difieren de los minibatches; descarta colisiones de negativos en vez de redibujarlas. Se registra cada epoch, sin exigir vectores numéricamente iguales.'),
+      p('GloVe es exactamente glove-wiki-gigaword-100: 400000 palabras, 100d y 6 mil millones de tokens. El artículo informa dos Intel Xeon E5-2658 de 2.1 GHz, 85 min de coocurrencias en un hilo y 14 min por iteración de 300d en 32 cores. Son mediciones publicadas de otra dimensión; aquí no se entrenó GloVe.')])
     examples=[]
     for name,rows in personal.items():
         valid=[r for r in rows if not r['oov']]
@@ -90,8 +90,7 @@ def build_content():
       p('Se probaron 18 analogías personales de seis tipos, con top-5, similitudes, rango correcto, OOV y búsqueda con/sin exclusión. Ejemplos observados:'),
       table(['Modelo','Resultado','Consulta','Esperado','Top 1','Rango'],examples),
       table(['Categoría','SGNS Add/Mul %','Gensim Add/Mul %','GloVe Add/Mul %'],categoryrows),
-      p('El coseno entre b−a y d−c cuantifica el paralelismo de relaciones equivalentes. Un valor alto no garantiza que d supere a todos sus competidores. Las relaciones de capitales, género, nacionalidad y morfología muestran regularidades y errores distintos.'),
-      p('El notebook muestra t-SNE de aproximadamente 500 palabras por modelo: grupos definidos previamente, coseno, perplexity 30, 1500 iteraciones, semilla 23236. Los ejes y distancias globales no se interpretan como medidas semánticas.')])
+      p('El coseno entre b−a y d−c mide paralelismo de relaciones equivalentes; un valor alto no garantiza acertar el ranking. El notebook incluye t-SNE de aproximadamente 500 palabras por modelo, con grupos definidos previamente, coseno, perplexity 30, 1500 iteraciones y semilla 23236. Sus ejes y distancias globales no son medidas semánticas.')])
     fractionrows=[]
     for f in [.01,.1,.5,1.0]:
         values={r['initialization']:r for r in test if r['fraction']==f}
@@ -128,8 +127,8 @@ def build_content():
       p('OOV de tokens en test AG News: '+', '.join(f"{name} {percent(read('news_split.json')['oov'][name]['test']['unknown_fraction'])}" for name in ['sgns','gensim','glove'])+'. SGNS y gensim usan '+number(best['corpus_tokens'])+' tokens normalizados; GloVe usa 6000000000. El hardware medido y el publicado se distinguen en la página 2.'),
       p(f"La configuración SGNS elegida fue {best['config']['name']} en epoch {best['epoch']}. {intrinsic_winner} obtuvo la mayor correlación SimLex observada. La tabla muestra que calidad intrínseca y F1 de clasificación deben examinarse por separado: son tareas con objetivos y distribuciones distintos."),
       p(f"Con 1% de etiquetas, GloVe obtuvo F1 {percent(one['glove']['metrics']['f1_macro'])} frente a {percent(one['random']['metrics']['f1_macro'])} del embedding aleatorio: diferencia {gain*100:+.2f} puntos porcentuales. Esta diferencia cuantifica la utilidad observada de la inicialización preentrenada con pocas etiquetas; no demuestra superioridad universal."),
-      p('El subsampling redujo pares redundantes de palabras frecuentes. Dimensión, ventana y negativos cambian capacidad y costo; aumentar dimensión o corpus no garantiza mejorar cada métrica en solo tres epochs. SGNS y gensim entrenan el mismo corpus, pero difieren en orden y actualización. GloVe dispone de muchos más tokens: la comparación no aísla el efecto de arquitectura.'),
-      p('Limitaciones: tres epochs, una sola semilla y ausencia de intervalos de confianza; embeddings estáticos sin sentidos múltiples; promedio de palabras sin orden ni negación; diferencias de tokenización y cobertura. No se extrapolan los tiempos publicados de GloVe de 300d a 100d. Futuro: varias semillas, más entrenamiento y modelos sensibles al contexto.'),
+      p('Subsampling redujo pares frecuentes redundantes. Dimensión, ventana y negativos cambian capacidad y costo; su efecto observado por configuración se analiza en el notebook. SGNS/gensim difieren en actualización; GloVe dispone de muchos más tokens. Esta comparación no aísla el efecto de arquitectura.'),
+      p('Limitaciones: tres epochs, una semilla, sin intervalos de confianza; embeddings estáticos y promedio sin orden ni negación; tokenización y cobertura diferentes. Futuro: varias semillas, más entrenamiento y modelos sensibles al contexto.'),
       p('Verificación: pérdida y gradientes contra entropía cruzada binaria, fronteras de contexto, exclusión de consultas y coincidencia con gensim; corpus mínimo y hashes, subconjuntos anidados, selección bloqueada y una evaluación test por modelo. El notebook se ejecutó desde kernel limpio. Los checkpoints y registros reales se recuperaron de Colab.'),
       h('Referencias'),
       p('Mikolov et al. (2013). Distributed Representations of Words and Phrases and their Compositionality. NeurIPS. Pennington, Socher y Manning (2014). GloVe: Global Vectors for Word Representation. EMNLP. https://nlp.stanford.edu/pubs/glove.pdf'),
@@ -147,7 +146,7 @@ def build_word(pages):
     for name,size in [('Title',18),('Heading 1',14)]:
         style=doc.styles[name]; style.font.name='Arial'; style.font.size=Pt(size); style.font.color.rgb=RGBColor(0,0,0)
         style.paragraph_format.space_before=Pt(0); style.paragraph_format.space_after=Pt(7)
-    header=sec.header.paragraphs[0]; header.text='Laboratorio 7  |  Ian Cumes 23236'; header.style='Caption'; header.runs[0].font.size=Pt(8)
+    header=sec.header.paragraphs[0]; header.text='Laboratorio 7  |  Ian Cumes 23236'; header.style='Caption'; header.runs[0].font.size=Pt(8); header.runs[0].font.color.rgb=RGBColor(0,0,0)
     footer=sec.footer.paragraphs[0]; footer.alignment=2
     footer.add_run('Página ')
     field=OxmlElement('w:fldSimple'); field.set(qn('w:instr'),'PAGE'); footer._p.append(field)
@@ -181,7 +180,6 @@ def build_word(pages):
                         for paragraph in cell.paragraphs:
                             paragraph.paragraph_format.space_after=Pt(2); paragraph.paragraph_format.space_before=Pt(2)
                             for run in paragraph.runs: run.font.size=Pt(8.5); run.bold=ri==0
-                doc.add_paragraph().paragraph_format.space_after=Pt(0)
     doc.core_properties.author='Ian Cumes'; doc.core_properties.title='Laboratorio 7 NLP y embeddings'
     doc.core_properties.subject='SGNS propio, evaluación de embeddings y clasificación AG News'
     doc.save(OUT/'Laboratorio7_Ian_Cumes_23236.docx')

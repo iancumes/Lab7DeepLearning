@@ -74,7 +74,7 @@ Para CPU, instalar PyTorch 2.8 desde su índice oficial CPU antes de las demás 
 
 ## Persistencia y verificación
 
-Cada epoch SGNS guarda ambas tablas y el optimizador en `checkpoints/*.pt`; gensim guarda sus vectores por epoch. Los clasificadores conservan el mejor checkpoint por validación. Los respaldos se recuperaron localmente antes de cerrar Colab; archivos grandes y datasets se excluyen de Git. La release contiene un `.kv` autocontenido, sin archivos auxiliares.
+Cada epoch SGNS guarda ambas tablas y el optimizador en `checkpoints/*.pt`; gensim guarda sus vectores por epoch. Los clasificadores conservan el mejor checkpoint por validación. Los respaldos se recuperaron localmente antes de cerrar Colab; archivos grandes y datasets se excluyen de Git. La release contiene un `.kv` autocontenido, sin archivos auxiliares, y respaldos ZIP de checkpoints. Para recuperar un respaldo, verificar su SHA256 y extraerlo en la raíz del repositorio; `python scripts/restore_vectors.py` reconstruye los vectores por epoch desde las tablas de entrada.
 
 SHA256 de `best_sgns.kv`: `{manifest['sha256']}`.
 
