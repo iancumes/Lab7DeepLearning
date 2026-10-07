@@ -15,7 +15,12 @@ for checkpoint in sorted(CHECKPOINTS.glob('*_e*.pt')):
     vectors=state['model']['input.weight'].numpy()
     assert np.isfinite(vectors).all() and len(vectors)==len(meta['vocabulary'])
     destination=checkpoint.with_suffix('.kv')
-    if not destination.exists():
+    matching=False
+    if destination.exists():
+        previous=KeyedVectors.load(str(destination),mmap='r')
+        matching=previous.index_to_key==meta['vocabulary'] and np.array_equal(previous.vectors,vectors)
+        del previous
+    if not matching:
         kv=KeyedVectors(vector_size=vectors.shape[1]); kv.add_vectors(meta['vocabulary'],vectors)
         kv.save(str(destination),separately=[])
         print('RESTAURADO',destination.name,flush=True)
