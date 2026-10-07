@@ -5,6 +5,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import numpy as np
 import torch
 from gensim.models import KeyedVectors
+from sklearn.metrics import precision_recall_fscore_support,confusion_matrix
 from src.common import ART,CHECKPOINTS,load_json,save_json,sha256
 
 def main(checkpoints=True):
@@ -14,8 +15,10 @@ def main(checkpoints=True):
     corpus=load_json(ART/'corpus.json'); assert corpus['selected_tokens']>=20_000_000
     configs=load_json(ART/'configurations.json'); metas=load_json(ART/'corpus_configurations.json')
     checked=[]
+    candidates=[]
     for cfg,meta in zip(configs,metas):
         rows=load_json(ART/'runs'/f"{cfg['name']}.json")
+        candidates.extend(rows)
         assert [r['epoch'] for r in rows]==[1,2,3]
         assert all(np.isfinite(r['loss']) and r['pairs']>0 for r in rows)
         assert all(r['corpus_tokens']==meta['corpus_tokens'] for r in rows)
@@ -30,6 +33,9 @@ def main(checkpoints=True):
                 assert torch.isfinite(state['model']['output.weight']).all()
                 checked.append(f"{cfg['name']}_e{epoch}")
                 del state,kv
+    expected=max(candidates,key=lambda r:(r['wordsim']['spearman'] if r['wordsim']['spearman'] is not None else -2,r['analogies']['total']['accuracy'] or 0,-r['config']['dim'],-r['epoch']))
+    observed=load_json(ART/'best_sgns.json')
+    assert (expected['config']['name'],expected['epoch'])==(observed['config']['name'],observed['epoch'])
     split=load_json(ART/'news_split.json'); train=set(split['train_indices']); val=set(split['validation_indices'])
     assert not train&val and len(train)==108000 and len(val)==12000 and split['official_test_size']==7600
     subsets=[set(split['subsets'][str(f)]) for f in [.01,.1,.5,1.0]]
@@ -45,6 +51,10 @@ def main(checkpoints=True):
         assert len(pred)==7600
         assert np.isclose((pred[:,1]==pred[:,2]).mean(),row['metrics']['accuracy'])
         assert np.isclose(matrix.trace()/matrix.sum(),row['metrics']['accuracy'])
+        assert np.array_equal(matrix,confusion_matrix(pred[:,1],pred[:,2],labels=np.arange(4)))
+        precision,recall,f1,_=precision_recall_fscore_support(pred[:,1],pred[:,2],average='macro',zero_division=0)
+        for key,value in [('precision_macro',precision),('recall_macro',recall),('f1_macro',f1)]:
+            assert np.isclose(value,row['metrics'][key])
         if checkpoints: assert sha256(ART/reference['checkpoint'])==reference['checkpoint_sha256']
     intrinsic=load_json(ART/'evaluations'/'intrinsic.json')
     assert len(load_json(ART/'shared_vocabulary.json'))==30000
@@ -52,7 +62,7 @@ def main(checkpoints=True):
     for r in intrinsic.values():
         assert len(r['three_cos_add']['categories'])==len(r['three_cos_mul']['categories'])==14
         assert r['simlex']['total']==999 and r['wordsim']['total']==353
-    save_json(ART/'verification.json',dict(passed=True,checkpoints_verified=checked,sgns_epochs=21,
+    save_json(ART/('verification.json' if checkpoints else 'verification_local.json'),dict(passed=True,checkpoints_verified=checked,sgns_epochs=21,
         classifiers=32,selected_test_models=20,test_examples=7600,shared_vocabulary=30000,
         corpus_minimum_passed=True,partitions_disjoint=True,selection_hashes_match=True,predictions_match_metrics=True))
     print('VERIFICACION_CORRECTA',len(checked),'checkpoints')

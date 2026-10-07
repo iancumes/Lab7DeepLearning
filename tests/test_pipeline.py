@@ -33,7 +33,13 @@ def test_sgns_matches_binary_cross_entropy_and_has_gradients():
             F.binary_cross_entropy_with_logits(negative,torch.zeros_like(negative),reduction="none").sum(dim=1)).mean()
     loss=model(center,context,neg)
     assert torch.allclose(loss,manual)
+    manual.backward()
+    expected_input=model.input.weight.grad.to_dense().clone()
+    expected_output=model.output.weight.grad.to_dense().clone()
+    model.zero_grad(set_to_none=True)
     loss.backward()
+    assert torch.allclose(model.input.weight.grad.to_dense(),expected_input,atol=1e-6)
+    assert torch.allclose(model.output.weight.grad.to_dense(),expected_output,atol=1e-6)
     assert model.input.weight.grad.coalesce().values().abs().sum()>0
     assert model.output.weight.grad.coalesce().values().abs().sum()>0
 

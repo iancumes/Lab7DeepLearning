@@ -153,9 +153,10 @@ def tsne(models):
         category=q['category']; words=q['words']
         if category=='family': group='Familia'
         elif not category.startswith('gram'): group='Geografía y monedas'
-        elif category.startswith(('gram1','gram3','gram4')): group='Adjetivos'
-        elif category.startswith(('gram2','gram5','gram7')): group='Verbos'
-        elif category.startswith(('gram8','gram9')): group='Sustantivos'
+        elif category.startswith(('gram1','gram2','gram3','gram4')): group='Adjetivos'
+        elif category.startswith(('gram5','gram7','gram9')): group='Verbos'
+        elif category.startswith('gram6'): group='Geografía y monedas'
+        elif category.startswith('gram8'): group='Sustantivos'
         else: continue
         groups[group].update(w for w in words if w in shared)
     chosen={}; used=set()
