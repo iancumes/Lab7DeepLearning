@@ -106,7 +106,8 @@ for cfg in configuraciones:
         for word,stats in row['subsampling'].items():
             subs.append({'configuración':cfg['name'],'epoch':row['epoch'],'palabra':word,**stats})
 display(pd.DataFrame(subs))
-display(Image(filename=str(ART/'figures'/'sgns_curves.png')))''')
+display(Image(filename=str(ART/'figures'/'sgns_curves.png')))
+display(Image(filename=str(ART/'figures'/'sgns_accuracy.png')))''')
 md(r'''La pérdida SGNS depende del número de negativos: los valores absolutos de k=5 y k=10 no son directamente comparables. La selección usa WordSim y analogías, no la menor pérdida entre objetivos diferentes.''')
 code('''neighbors=[]
 for cfg in configuraciones:
@@ -126,6 +127,7 @@ Se carga **exactamente `glove-wiki-gigaword-100`**, con 400,000 palabras, 100 di
 code('''gensim_log=load_json(ART/'runs'/'gensim.json')
 display(pd.DataFrame([{k:v for k,v in r.items() if k not in ['neighbors','analogies','wordsim']} | {'wordsim':r['wordsim']['spearman'],'accuracy':r['analogies']['total']['accuracy']} for r in gensim_log]))
 display(pd.DataFrame([load_json(ART/'glove_source.json')]))
+display(pd.DataFrame([{'epoch':r['epoch'],'palabra':w,'vecinos':', '.join(f'{word} ({s:.3f})' for word,s in neighbors)} for r in gensim_log for w,neighbors in r['neighbors'].items()]))
 display(Image(filename=str(ART/'figures'/'analogy_vs_tokens.png')))''')
 md(r'''## 3 Aritmética vectorial y evaluación intrínseca
 
@@ -216,6 +218,8 @@ for fraction in [.01,.1,.5,1.0]:
     print(f"Con {fraction*100:g}% de entrenamiento, mejor F1 test observado: {winner['variant']} = {winner.f1_macro:.4f}")
 print('Archivo de datos y decisiones:',ART/'classification_selection.json')
 print('Entorno real:',load_json(ART/'hardware.json'))''')
+code('''from src.analysis import discussion
+display(Markdown(discussion()))''')
 md(r'''### Entregables y reproducción
 
 - Código y dependencias: `src/`, `scripts/`, `requirements.txt`.

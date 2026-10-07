@@ -43,6 +43,12 @@ def tables():
        **r['metrics']) for r in test])
     comparison=[]
     categories=[]
+    best=load_json(ART/'best_sgns.json')
+    sgns_runs=load_json(ART/'runs'/f"{best['config']['name']}.json")
+    gensim_runs=load_json(ART/'runs'/'gensim.json')
+    news=load_json(ART/'news_split.json')
+    parallel=load_json(ART/'evaluations'/'parallelism.json')
+    hardware=load_json(ART/'hardware.json')
     for model,r in intrinsic.items():
         final=cls[(cls.model==model)&(cls.fraction==1)].iloc[0]
         comparison.append(dict(model=model,dimension=r['dimension'],vocabulary=r['vocabulary_size'],
@@ -51,6 +57,11 @@ def tables():
            analogy_coverage=r['three_cos_add']['total']['coverage'],wordsim=r['wordsim']['spearman'],
            wordsim_coverage=r['wordsim']['coverage'],simlex=r['simlex']['spearman'],
            simlex_coverage=r['simlex']['coverage'],test_f1=final.f1_macro,test_variant=final.variant))
+        comparison[-1].update(corpus_tokens=6_000_000_000 if model=='glove' else best['corpus_tokens'],
+            training_seconds=None if model=='glove' else sum(e['training_seconds'] for e in (sgns_runs if model=='sgns' else gensim_runs)),
+            hardware='dual Intel Xeon E5-2658; 32 cores (artículo, 300d)' if model=='glove' else (str(hardware.get('gpu','CPU')) if model=='sgns' else str(hardware.get('cpu','CPU Colab'))),
+            parallel_cosine=parallel[model]['mean_cosine'],ag_news_oov=news['oov'][model]['test']['unknown_fraction'],
+            published_timing_note='85 min coocurrencias; 14 min/iteración para 300d, no 100d' if model=='glove' else 'medición de este experimento')
         for method in ['three_cos_add','three_cos_mul']:
             categories.extend(dict(model=model,method=method,**cat) for cat in r[method]['categories'])
     output=dict(epochs=epochs,classifiers=cls,comparison=pd.DataFrame(comparison),categories=pd.DataFrame(categories))
@@ -78,6 +89,14 @@ def figures(output=None):
     axes[1].set(xlabel='Epoch',ylabel='WordSim 353 Spearman',xticks=[1,2,3])
     axes[1].legend(fontsize=8,ncol=2)
     save_figure(fig,'sgns_curves')
+    fig,axes=plt.subplots(1,3,figsize=(14,4))
+    for name,group in epochs.groupby('configuration',sort=False):
+        color,style,marker=styles[name]
+        for ax,metric,label in zip(axes,['semantic','syntactic','accuracy'],['Semánticas','Sintácticas','Total']):
+            ax.plot(group.epoch,group[metric]*100,marker=marker,color=color,linestyle=style,label=name)
+            ax.set(xlabel='Epoch',ylabel=f'Accuracy {label.lower()} (%)',xticks=[1,2,3])
+    axes[-1].legend(fontsize=8,ncol=2)
+    save_figure(fig,'sgns_accuracy')
     group=epochs[epochs.configuration.isin(['corpus25','corpus50','base100'])].sort_values('tokens')
     best=group.sort_values(['wordsim','accuracy'],ascending=False).groupby('configuration',sort=False).head(1).sort_values('tokens')
     reference=ART/'glove_selection_evaluation.json'
@@ -101,17 +120,19 @@ def figures(output=None):
     ax.legend(ncol=3,fontsize=8)
     save_figure(fig,'classification_vs_data')
     chosen=load_json(ART/'classification_selection.json')['all_results']
-    fig,axes=plt.subplots(1,2,figsize=(11,4))
+    fig,axes=plt.subplots(1,3,figsize=(14,4))
     for row in chosen:
         if row['fraction']!=1: continue
         history=pd.DataFrame(row['history'])
         color=COLORS[row['initialization']]
         style='--' if row['freeze'] else '-'
         axes[0].plot(history.epoch,history.train_loss,label=row['name'],color=color,linestyle=style)
-        axes[1].plot(history.epoch,history.f1_macro*100,label=row['name'],color=color,linestyle=style)
+        axes[1].plot(history.epoch,history.validation_loss,label=row['name'],color=color,linestyle=style)
+        axes[2].plot(history.epoch,history.f1_macro*100,label=row['name'],color=color,linestyle=style)
     axes[0].set(xlabel='Epoch',ylabel='Pérdida de entrenamiento')
-    axes[1].set(xlabel='Epoch',ylabel='F1 macro de validación (%)')
-    axes[1].legend(fontsize=7,ncol=2)
+    axes[1].set(xlabel='Epoch',ylabel='Pérdida de validación')
+    axes[2].set(xlabel='Epoch',ylabel='F1 macro de validación (%)')
+    axes[2].legend(fontsize=7,ncol=2)
     save_figure(fig,'classification_curves')
     tests=[r for r in load_json(ART/'evaluations'/'classification_test.json') if r['fraction']==1]
     fig,axes=plt.subplots(1,5,figsize=(16,3.5))
