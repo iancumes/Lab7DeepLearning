@@ -13,6 +13,10 @@ def main(checkpoints=True):
     assert completion['complete'] and completion['sgns_epochs']==21
     assert completion['classifiers']==32 and completion['final_test_models']==20
     corpus=load_json(ART/'corpus.json'); assert corpus['selected_tokens']>=20_000_000
+    assert sum(a['tokens'] for a in corpus['articles'])==corpus['selected_tokens']
+    assert len({a['article_id'] for a in corpus['articles']})==corpus['selected_articles']
+    assert corpus['article_boundaries'][-1]['tokens']==corpus['selected_tokens']
+    assert corpus['selected_tokens']-corpus['articles'][-1]['tokens']<20_000_000
     configs=load_json(ART/'configurations.json'); metas=load_json(ART/'corpus_configurations.json')
     checked=[]
     candidates=[]
@@ -36,6 +40,16 @@ def main(checkpoints=True):
     expected=max(candidates,key=lambda r:(r['wordsim']['spearman'] if r['wordsim']['spearman'] is not None else -2,r['analogies']['total']['accuracy'] or 0,-r['config']['dim'],-r['epoch']))
     observed=load_json(ART/'best_sgns.json')
     assert (expected['config']['name'],expected['epoch'])==(observed['config']['name'],observed['epoch'])
+    gensim_logs=load_json(ART/'runs/gensim.json')
+    assert len(gensim_logs)==3 and all(r['config']==observed['config'] for r in gensim_logs)
+    if checkpoints:
+        selected_meta=next(m for m in metas if m['config']['name']==observed['config']['name'])
+        for epoch in [1,2,3]:
+            kv=KeyedVectors.load(str(CHECKPOINTS/f'gensim_e{epoch}.kv'),mmap='r')
+            assert set(kv.index_to_key)==set(selected_meta['vocabulary']) and kv.vector_size==observed['config']['dim']
+            assert np.isfinite(kv.vectors).all()
+            if kv.norms is not None: assert np.allclose(kv.norms,np.linalg.norm(kv.vectors,axis=1),rtol=1e-5,atol=1e-6)
+            del kv
     split=load_json(ART/'news_split.json'); train=set(split['train_indices']); val=set(split['validation_indices'])
     assert not train&val and len(train)==108000 and len(val)==12000 and split['official_test_size']==7600
     subsets=[set(split['subsets'][str(f)]) for f in [.01,.1,.5,1.0]]
@@ -64,7 +78,8 @@ def main(checkpoints=True):
         assert r['simlex']['total']==999 and r['wordsim']['total']==353
     save_json(ART/('verification.json' if checkpoints else 'verification_local.json'),dict(passed=True,checkpoints_verified=checked,sgns_epochs=21,
         classifiers=32,selected_test_models=20,test_examples=7600,shared_vocabulary=30000,
-        corpus_minimum_passed=True,partitions_disjoint=True,selection_hashes_match=True,predictions_match_metrics=True))
+        corpus_minimum_passed=True,complete_articles=True,gensim_configuration_matches=True,
+        gensim_vectors_verified=checkpoints,partitions_disjoint=True,selection_hashes_match=True,predictions_match_metrics=True))
     print('VERIFICACION_CORRECTA',len(checked),'checkpoints')
 
 if __name__=='__main__': main('--no-checkpoints' not in sys.argv)
