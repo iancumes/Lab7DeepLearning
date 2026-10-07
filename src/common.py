@@ -17,6 +17,14 @@ DATA = ROOT / "data"
 CHECKPOINTS = ROOT / "checkpoints"
 CONTROL = ["king", "france", "computer", "good", "january", "run"]
 
+def hf_cache():
+    """Evita el límite de nombres de FileLock en rutas Windows largas."""
+    import tempfile
+    explicit=os.environ.get('LAB7_HF_CACHE')
+    path=Path(explicit) if explicit else (Path(tempfile.gettempdir())/'lab7_hf_23236' if os.name=='nt' else DATA/'hf')
+    path.mkdir(parents=True,exist_ok=True)
+    return path
+
 def initialize():
     for folder in [ART, DATA, CHECKPOINTS, ART/"figures", ART/"runs", ART/"evaluations"]:
         folder.mkdir(parents=True, exist_ok=True)

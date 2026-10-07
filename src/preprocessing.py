@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from datasets import load_dataset
 from nltk.tokenize import TreebankWordTokenizer
-from .common import ART, DATA, SEED, save_json, load_json, sha256
+from .common import ART, DATA, SEED, save_json, load_json, sha256, hf_cache
 
 WORD = re.compile(r"[^\W\d_]+(?:'[^\W\d_]+)*|\d+(?:[.,]\d+)*|[^\w\s]", re.UNICODE)
 ARTICLE = re.compile(r"^\s*=\s+([^=]+?)\s+=\s*$")
@@ -65,7 +65,7 @@ def prepare_corpus(target=20_000_000):
     if meta.exists() and (DATA/"selected.txt").exists():
         return load_json(meta)
     started = time.perf_counter()
-    wiki = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", revision=WIKI_REVISION,cache_dir=str(DATA/"hf"))
+    wiki = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", revision=WIKI_REVISION,cache_dir=str(hf_cache()))
     # Primero se cuentan todos los splits. Tokens normalizados y tokens por
     # espacios se reportan por separado, sin copiar cifras bibliográficas.
     counters, articles, split_stats = collections.Counter(), [], {}
@@ -167,7 +167,7 @@ def prepare_ids(config, manifest):
     mapping = {w:i for i,w in enumerate(vocabulary)}
     ids, segments = [], []
     corpus_path = folder/"corpus.txt"
-    with (DATA/"selected.txt").open(encoding="utf-8") as f, corpus_path.open("w", encoding="utf-8") as out:
+    with (DATA/"selected.txt").open(encoding="utf-8") as f, corpus_path.open("w", encoding="utf-8", newline="\n") as out:
         for i, line in enumerate(f):
             if i >= boundary["sentences"]:
                 break

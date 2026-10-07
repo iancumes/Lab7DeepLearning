@@ -14,7 +14,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix, log_loss
 from sklearn.model_selection import train_test_split
-from .common import ART, DATA, SEED, save_json, load_json, sha256
+from .common import ART, DATA, SEED, save_json, load_json, sha256, hf_cache
 from .preprocessing import tokenize
 
 LABELS=["World","Sports","Business","Sci/Tech"]
@@ -27,7 +27,7 @@ def metrics(y,prediction):
                 recall_macro=float(r),f1_macro=float(f))
 
 def prepare_news(models):
-    news=load_dataset("fancyzhx/ag_news",revision=NEWS_REVISION,cache_dir=str(DATA/"hf"))
+    news=load_dataset("fancyzhx/ag_news",revision=NEWS_REVISION,cache_dir=str(hf_cache()))
     texts=news["train"]["text"]
     labels=np.array(news["train"]["label"],dtype=np.int64)
     train,validation=train_test_split(np.arange(len(texts)),test_size=0.1,stratify=labels,random_state=SEED)
